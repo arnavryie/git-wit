@@ -78,6 +78,14 @@ export default function LandingPage() {
           Sign in with GitHub
         </button>
 
+        <button
+          onClick={() => router.push("/feed")}
+          className="flex items-center gap-2 text-gh-muted text-sm hover:text-white transition-colors underline underline-offset-4"
+        >
+          Browse without signing in →
+        </button>
+
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10 w-full">
           <div className="gh-card p-5 flex flex-col items-center gap-2">
             <TrendingUp className="w-6 h-6 text-gh-orange" />
