@@ -84,6 +84,17 @@ export default function TopNav() {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
+        <a
+          href="/survey/responses.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden sm:flex items-center gap-1.5 text-[11px] text-purple-300 font-medium bg-purple-950/50 border border-purple-800/60 hover:bg-purple-900/60 px-2.5 py-1 rounded-full transition-colors select-none"
+          title="View User Feedback Survey & Results (47 Responses collected)"
+        >
+          <span>📋</span>
+          <span>Survey (47)</span>
+        </a>
+
         <button className="p-1.5 text-gh-muted hover:text-gh-text hover:bg-gh-surface2 rounded-md transition-colors" title="Notifications">
           <Bell className="w-4 h-4" />
         </button>

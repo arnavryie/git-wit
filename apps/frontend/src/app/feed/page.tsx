@@ -3,11 +3,12 @@ import { Filter } from 'lucide-react';
 import RepoCard from '@/components/feed/RepoCard';
 import ForkSpikeCard from '@/components/feed/ForkSpikeCard';
 import RightSidebar from '@/components/layout/RightSidebar';
-import { getTrendingRepos, getReposByTopic } from '@/lib/github-api';
+import { getTrendingRepos, getReposByTopic, FALLBACK_TRENDING_REPOS } from '@/lib/github-api';
 import { SocialFeed } from '@/components/feed/SocialFeed';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { auth } from "@/app/api/auth/[...nextauth]/route";
 import { FeedFilterPills } from "@/components/feed/FeedFilterPills";
+import WeeklyChallengeBanner from "@/components/feed/WeeklyChallengeBanner";
 
 export default async function FeedPage({
   searchParams,
@@ -17,16 +18,23 @@ export default async function FeedPage({
   const { filter, period } = await searchParams;
   const activeFilter = filter || "All";
   const activePeriod = (period as "daily" | "weekly" | "monthly") || "weekly";
-  const lang = activeFilter === "All" || activeFilter === "AI" ? undefined : activeFilter;
-  const topic = activeFilter === "AI" ? "machine-learning" : undefined;
+  const isSpecialFilter = activeFilter === "All" || activeFilter === "AI" || activeFilter.includes("Beginner") || activeFilter.includes("Career");
+  const lang = isSpecialFilter ? undefined : activeFilter;
+  const topic = activeFilter === "AI" ? "machine-learning" 
+    : activeFilter.includes("Beginner") ? "good-first-issue" 
+    : activeFilter.includes("Career") ? "awesome" 
+    : undefined;
 
   let repos: any[] = [];
   try {
     repos = topic
       ? await getReposByTopic(topic)
       : await getTrendingRepos(lang, activePeriod);
+    if (!repos || repos.length === 0) {
+      repos = FALLBACK_TRENDING_REPOS;
+    }
   } catch (e) {
-    repos = [];
+    repos = FALLBACK_TRENDING_REPOS;
   }
 
   const session = await auth();
@@ -163,6 +171,8 @@ export default async function FeedPage({
             <div className="border-b border-gh-border pt-1" />
           </div>
         )}
+
+        <WeeklyChallengeBanner />
 
         <Tabs defaultValue="trending" className="w-full flex flex-col gap-4">
           <TabsList className="bg-[#161b22] border border-gh-border p-0.5 rounded-md flex self-start gap-1 select-none">

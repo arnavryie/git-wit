@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Ronin — Feature Suggestions & Feedback</title>
+  <meta name="description" content="Share your suggestions and feature requests for Project Ronin — the social intelligence platform for open-source developers." />
+  <link rel="icon" href="https://ssl.gstatic.com/docs/spreadsheets/forms/favicon_qp2.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --google-blue: #1a73e8;
+      --google-purple: #673ab7;
+      --google-red: #d93025;
+      --border: #dadce0;
+      --bg: #f0ebf8;
+      --card: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --label: #444746;
+    }
+
+    body {
+      font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 0 0 80px;
+      color: var(--text);
+    }
+
+    /* ── Top Google Bar ── */
+    .google-bar {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .google-bar img { height: 30px; }
+    .google-bar span {
+      font-size: 22px;
+      color: var(--muted);
+      font-weight: 300;
+      border-left: 1px solid #ccc;
+      padding-left: 10px;
+      margin-left: 4px;
+    }
+    .google-bar .bar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4285f4, #ea4335);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* ── Form Container ── */
+    .form-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 12px;
+    }
+
+    /* ── Header Card ── */
+    .header-card {
+      background: var(--card);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.06);
+      border-top: 10px solid var(--google-purple);
+    }
+    .header-card .header-body {
+      padding: 24px 24px 20px;
+    }
+    .form-title {
+      font-size: 30px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .form-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .form-desc a { color: var(--google-blue); }
+    .required-note {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .required-note span { color: var(--google-red); font-size: 16px; }
+
+    /* ── Section Card ── */
+    .card {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.06);
+      transition: box-shadow .2s;
+    }
+    .card:focus-within {
+      box-shadow: 0 2px 6px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08);
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Question Block ── */
+    .q-block { margin-bottom: 28px; }
+    .q-block:last-child { margin-bottom: 0; }
+    .q-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+      line-height: 1.5;
+    }
+    .q-label .req { color: var(--google-red); margin-left: 2px; }
+
+    /* Short text / email */
+    .gf-input {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+      padding: 8px 0 4px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .gf-input:focus { border-bottom: 2px solid var(--google-purple); }
+    .gf-input::placeholder { color: #b0b3b8; }
+
+    /* Textarea */
+    .gf-textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      resize: vertical;
+      min-height: 80px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .gf-textarea:focus { border-color: var(--google-purple); box-shadow: 0 0 0 2px rgba(103,58,183,.1); }
+
+    /* Radio */
+    .gf-radio-group { display: flex; flex-direction: column; gap: 4px; }
+    .gf-radio-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background .1s;
+    }
+    .gf-radio-item:hover { background: rgba(103,58,183,.06); }
+    .gf-radio-item input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--google-purple);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .gf-radio-item label { font-size: 14px; color: var(--text); cursor: pointer; }
+
+    /* Checkbox */
+    .gf-check-group { display: flex; flex-direction: column; gap: 4px; }
+    .gf-check-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background .1s;
+    }
+    .gf-check-item:hover { background: rgba(103,58,183,.06); }
+    .gf-check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--google-purple);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .gf-check-item label { font-size: 14px; color: var(--text); cursor: pointer; }
+
+    /* Scale / Linear */
+    .gf-scale {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 0 2px;
+    }
+    .scale-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+    .scale-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+    .scale-item input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--google-purple);
+      cursor: pointer;
+    }
+    .scale-item span { font-size: 12px; color: var(--muted); }
+
+    /* Select */
+    .gf-select {
+      width: 100%;
+      padding: 10px 28px 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%235f6368'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 8px center;
+      -webkit-appearance: none;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .gf-select:focus { border-color: var(--google-purple); }
+
+    /* Submit Button */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 8px 0;
+    }
+    .gf-submit {
+      background: var(--google-blue);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, box-shadow .15s;
+      box-shadow: 0 1px 2px rgba(0,0,0,.2);
+    }
+    .gf-submit:hover { background: #1557b0; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+    .gf-submit:active { background: #0d47a1; }
+    .clear-link {
+      font-size: 13px;
+      color: var(--google-blue);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      text-decoration: none;
+    }
+    .clear-link:hover { text-decoration: underline; }
+
+    /* Progress Indicator */
+    .progress-bar {
+      background: #e8e0f7;
+      height: 4px;
+      border-radius: 2px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--google-purple);
+      border-radius: 2px;
+      transition: width .4s ease;
+    }
+
+    /* ── Success Screen ── */
+    #success-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: #e6f4ea;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .success-icon svg { width: 40px; height: 40px; fill: #1e8e3e; }
+    .success-title { font-size: 24px; font-weight: 400; margin-bottom: 12px; color: var(--text); }
+    .success-body { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+    .success-link {
+      display: inline-block;
+      padding: 10px 24px;
+      background: var(--google-blue);
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background .15s;
+    }
+    .success-link:hover { background: #1557b0; }
+    .another-btn {
+      display: inline-block;
+      padding: 10px 24px;
+      color: var(--google-blue);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: none;
+      font-family: inherit;
+      margin-left: 12px;
+      transition: background .1s;
+    }
+    .another-btn:hover { background: rgba(26,115,232,.04); }
+
+    /* Google branding footer */
+    .gf-footer {
+      text-align: center;
+      padding: 24px 12px 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .gf-footer img { height: 18px; vertical-align: middle; margin: 0 4px; }
+    .gf-footer a { color: var(--muted); text-decoration: none; }
+    .gf-footer a:hover { text-decoration: underline; }
+
+    /* Response count */
+    .resp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #f1f3f4;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .form-title { font-size: 22px; }
+      .card { padding: 16px; }
+      .header-card .header-body { padding: 16px; }
+      .scale-item span { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Google-style top bar -->
+  <div class="google-bar">
+    <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" />
+    <span>Forms</span>
+    <div class="bar-right">
+      <div class="avatar">R</div>
+    </div>
+  </div>
+
+  <div class="form-wrap">
+
+    <!-- ── FORM (visible initially) ── -->
+    <div id="form-screen">
+      <!-- Header card -->
+      <div class="header-card">
+        <div class="header-body">
+          <h1 class="form-title">⚔️ Project Ronin — Feature Suggestions &amp; Feedback</h1>
+          <p class="form-desc">
+            Hey! We're building <strong>Project Ronin</strong> — the social intelligence layer for open-source developers
+            (think GitHub meets Twitter, but smarter). We're collecting feature suggestions and feedback from
+            friends &amp; peers to shape the next version of the platform.<br /><br />
+            This takes 2–3 minutes. Your input directly influences what we build next!
+            <br /><br />
+            🔒 <em>Your responses are confidential and used only for product research.</em>
+          </p>
+          <div class="required-note"><span>*</span>&nbsp;Indicates required question</div>
+          <div class="resp-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" height="14" width="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            <span id="resp-count">47 responses</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+      <form id="main-form" onsubmit="handleSubmit(event)">
+
+        <!-- ──────────────────────────────────────── -->
+        <!--  SECTION 1 · About You                 -->
+        <!-- ──────────────────────────────────────── -->
+        <div class="card">
+          <div class="section-title">👤 About You</div>
+
+          <div class="q-block">
+            <div class="q-label">1. Your Name <span class="req">*</span></div>
+            <input class="gf-input" type="text" required placeholder="Your answer" id="q-name" oninput="updateProgress()" />
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">2. Your Email Address <span class="req">*</span></div>
+            <input class="gf-input" type="email" required placeholder="example@gmail.com" id="q-email" oninput="updateProgress()" />
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">3. GitHub Username (optional)</div>
+            <input class="gf-input" type="text" placeholder="e.g. octocat" id="q-github" />
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">4. What best describes you? <span class="req">*</span></div>
+            <div class="gf-radio-group" id="q-role">
+              <div class="gf-radio-item"><input type="radio" name="role" value="Student (School / College)" required id="r1" /><label for="r1">Student (School / College)</label></div>
+              <div class="gf-radio-item"><input type="radio" name="role" value="Software Developer / Engineer" id="r2" /><label for="r2">Software Developer / Engineer</label></div>
+              <div class="gf-radio-item"><input type="radio" name="role" value="Open-source Contributor" id="r3" /><label for="r3">Open-source Contributor</label></div>
+              <div class="gf-radio-item"><input type="radio" name="role" value="Freelancer / Solo Builder" id="r4" /><label for="r4">Freelancer / Solo Builder</label></div>
+              <div class="gf-radio-item"><input type="radio" name="role" value="Tech Enthusiast / Hobbyist" id="r5" /><label for="r5">Tech Enthusiast / Hobbyist</label></div>
+              <div class="gf-radio-item"><input type="radio" name="role" value="Other" id="r6" /><label for="r6">Other</label></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ──────────────────────────────────────── -->
+        <!--  SECTION 2 · Current Habits             -->
+        <!-- ──────────────────────────────────────── -->
+        <div class="card">
+          <div class="section-title">💻 Your GitHub &amp; Discovery Habits</div>
+
+          <div class="q-block">
+            <div class="q-label">5. How often do you use GitHub? <span class="req">*</span></div>
+            <div class="gf-radio-group">
+              <div class="gf-radio-item"><input type="radio" name="gh-freq" value="Daily" required id="f1" /><label for="f1">Daily</label></div>
+              <div class="gf-radio-item"><input type="radio" name="gh-freq" value="A few times a week" id="f2" /><label for="f2">A few times a week</label></div>
+              <div class="gf-radio-item"><input type="radio" name="gh-freq" value="Weekly" id="f3" /><label for="f3">Weekly</label></div>
+              <div class="gf-radio-item"><input type="radio" name="gh-freq" value="Occasionally (when needed)" id="f4" /><label for="f4">Occasionally (when needed)</label></div>
+              <div class="gf-radio-item"><input type="radio" name="gh-freq" value="Rarely / Not yet" id="f5" /><label for="f5">Rarely / Not yet</label></div>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">6. How do you currently discover interesting repos / projects? (Select all that apply)</div>
+            <div class="gf-check-group">
+              <div class="gf-check-item"><input type="checkbox" id="d1" value="GitHub Explore / Trending" /><label for="d1">GitHub Explore / Trending</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="d2" value="Twitter / X Developer posts" /><label for="d2">Twitter / X Developer posts</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="d3" value="Reddit (r/programming, r/webdev, etc.)" /><label for="d3">Reddit (r/programming, r/webdev, etc.)</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="d4" value="YouTube / Dev influencers" /><label for="d4">YouTube / Dev influencers</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="d5" value="Discord / Slack communities" /><label for="d5">Discord / Slack communities</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="d6" value="Friends / Colleagues sharing links" /><label for="d6">Friends / Colleagues sharing links</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="d7" value="Dev newsletters (TLDR, Hackernewsletter, etc.)" /><label for="d7">Dev newsletters (TLDR, Hackernewsletter, etc.)</label></div>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">7. What's the biggest pain point with discovering open-source projects right now? <span class="req">*</span></div>
+            <div class="gf-radio-group">
+              <div class="gf-radio-item"><input type="radio" name="pain" value="No personalisation — I see random repos unrelated to my skills" required id="p1" /><label for="p1">No personalisation — I see random repos unrelated to my skills</label></div>
+              <div class="gf-radio-item"><input type="radio" name="pain" value="Hard to find repos in my specific language / stack" id="p2" /><label for="p2">Hard to find repos in my specific language / stack</label></div>
+              <div class="gf-radio-item"><input type="radio" name="pain" value="Descriptions are too technical and hard to understand quickly" id="p3" /><label for="p3">Descriptions are too technical and hard to understand quickly</label></div>
+              <div class="gf-radio-item"><input type="radio" name="pain" value="I don't know which repos are worth contributing to" id="p4" /><label for="p4">I don't know which repos are worth contributing to</label></div>
+              <div class="gf-radio-item"><input type="radio" name="pain" value="No social element — I can't see what my network is working on" id="p5" /><label for="p5">No social element — I can't see what my network is working on</label></div>
+              <div class="gf-radio-item"><input type="radio" name="pain" value="I'm not sure / I don't have this problem" id="p6" /><label for="p6">I'm not sure / I don't have this problem</label></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ──────────────────────────────────────── -->
+        <!--  SECTION 3 · Feature Interest           -->
+        <!-- ──────────────────────────────────────── -->
+        <div class="card">
+          <div class="section-title">✨ Project Ronin — Feature Feedback</div>
+
+          <p style="font-size:13px;color:#5f6368;margin-bottom:20px;line-height:1.6;">
+            Project Ronin is a <strong>social developer intelligence platform</strong> that gives you a personalised feed of trending GitHub repos
+            matched to your actual skills, with AI-generated summaries, a social layer (posts, follows, communities), and a shareable AI Developer Dossier.
+          </p>
+
+          <div class="q-block">
+            <div class="q-label">8. Which of these features excites you the most? <span class="req">*</span></div>
+            <div class="gf-radio-group">
+              <div class="gf-radio-item"><input type="radio" name="top-feat" value="Personalised 'For You' feed — trending repos matched to my language stack using AI" required id="tf1" /><label for="tf1">Personalised "For You" feed — trending repos matched to my language stack using AI</label></div>
+              <div class="gf-radio-item"><input type="radio" name="top-feat" value="AI Repo Summaries — Gemini explains what any repo does in plain English" id="tf2" /><label for="tf2">AI Repo Summaries — Gemini explains what any repo does in plain English</label></div>
+              <div class="gf-radio-item"><input type="radio" name="top-feat" value="AI Developer Dossier — a shareable profile card generated from my GitHub history" id="tf3" /><label for="tf3">AI Developer Dossier — a shareable profile card generated from my GitHub history</label></div>
+              <div class="gf-radio-item"><input type="radio" name="top-feat" value="Developer Communities — topic-based hubs (AI/ML, Frontend, DevOps) with real repos" id="tf4" /><label for="tf4">Developer Communities — topic-based hubs (AI/ML, Frontend, DevOps) with real repos</label></div>
+              <div class="gf-radio-item"><input type="radio" name="top-feat" value="Social Layer — follow developers, post updates, like and share repos (GitHub meets Twitter)" id="tf5" /><label for="tf5">Social Layer — follow developers, post updates, like and share repos (GitHub meets Twitter)</label></div>
+              <div class="gf-radio-item"><input type="radio" name="top-feat" value="Fork Velocity Alerts — get notified when a repo suddenly goes viral" id="tf6" /><label for="tf6">Fork Velocity Alerts — get notified when a repo suddenly goes viral</label></div>
+              <div class="gf-radio-item"><input type="radio" name="top-feat" value="Issue Impact Scoring — AI scores GitHub issues by difficulty and impact so I know where to contribute" id="tf7" /><label for="tf7">Issue Impact Scoring — AI scores GitHub issues by difficulty and impact so I know where to contribute</label></div>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">9. Which features would you actually use regularly? (Select all that apply)</div>
+            <div class="gf-check-group">
+              <div class="gf-check-item"><input type="checkbox" id="u1" value="Daily personalised feed" /><label for="u1">Daily personalised feed</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="u2" value="AI repo summaries before deciding to star / fork" /><label for="u2">AI repo summaries before deciding to star / fork</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="u3" value="Skill-matched job-ready project recommendations" /><label for="u3">Skill-matched job-ready project recommendations</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="u4" value="Trending alerts for my stack" /><label for="u4">Trending alerts for my stack (email / push)</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="u5" value="Shareable developer profile card" /><label for="u5">Shareable developer profile card (to send to recruiters)</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="u6" value="Community feeds for my domain" /><label for="u6">Community feeds for my domain (e.g. AI/ML, Web Dev)</label></div>
+              <div class="gf-check-item"><input type="checkbox" id="u7" value="Following other developers and seeing their activity" /><label for="u7">Following other developers and seeing their activity</label></div>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">10. How useful would <strong>AI-generated plain-English summaries</strong> of GitHub repos be for you? <span class="req">*</span></div>
+            <div class="gf-scale">
+              <div class="scale-labels">
+                <span>Not useful at all</span>
+                <span>Extremely useful</span>
+              </div>
+              <div class="scale-row" id="q-ai-scale">
+                <div class="scale-item"><input type="radio" name="ai-useful" value="1" required /><span>1</span></div>
+                <div class="scale-item"><input type="radio" name="ai-useful" value="2" /><span>2</span></div>
+                <div class="scale-item"><input type="radio" name="ai-useful" value="3" /><span>3</span></div>
+                <div class="scale-item"><input type="radio" name="ai-useful" value="4" /><span>4</span></div>
+                <div class="scale-item"><input type="radio" name="ai-useful" value="5" /><span>5</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">11. How likely are you to use a platform that recommends repos <em>specifically</em> matched to your GitHub skill stack? <span class="req">*</span></div>
+            <div class="gf-scale">
+              <div class="scale-labels">
+                <span>Very unlikely</span>
+                <span>Very likely</span>
+              </div>
+              <div class="scale-row">
+                <div class="scale-item"><input type="radio" name="skill-match" value="1" required /><span>1</span></div>
+                <div class="scale-item"><input type="radio" name="skill-match" value="2" /><span>2</span></div>
+                <div class="scale-item"><input type="radio" name="skill-match" value="3" /><span>3</span></div>
+                <div class="scale-item"><input type="radio" name="skill-match" value="4" /><span>4</span></div>
+                <div class="scale-item"><input type="radio" name="skill-match" value="5" /><span>5</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ──────────────────────────────────────── -->
+        <!--  SECTION 4 · Suggestions               -->
+        <!-- ──────────────────────────────────────── -->
+        <div class="card">
+          <div class="section-title">💡 Your Suggestions for Us</div>
+
+          <div class="q-block">
+            <div class="q-label">12. What feature do you wish GitHub already had?</div>
+            <textarea class="gf-textarea" id="q-wish" placeholder="e.g. I wish GitHub showed me repos based on what my team is using, not just global trending..."></textarea>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">13. What should we add to Project Ronin that doesn't exist yet anywhere?</div>
+            <textarea class="gf-textarea" id="q-suggest" placeholder="Your suggestion — this directly shapes what we build next..."></textarea>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">14. Would you want a <strong>mobile app</strong> version of Project Ronin? <span class="req">*</span></div>
+            <div class="gf-radio-group">
+              <div class="gf-radio-item"><input type="radio" name="mobile" value="Yes, absolutely — mobile-first for me" required id="m1" /><label for="m1">Yes, absolutely — mobile-first for me</label></div>
+              <div class="gf-radio-item"><input type="radio" name="mobile" value="Yes, but desktop is fine for now" id="m2" /><label for="m2">Yes, but desktop is fine for now</label></div>
+              <div class="gf-radio-item"><input type="radio" name="mobile" value="Doesn't matter to me" id="m3" /><label for="m3">Doesn't matter to me</label></div>
+              <div class="gf-radio-item"><input type="radio" name="mobile" value="No, I prefer desktop only" id="m4" /><label for="m4">No, I prefer desktop only</label></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ──────────────────────────────────────── -->
+        <!--  SECTION 5 · Overall                   -->
+        <!-- ──────────────────────────────────────── -->
+        <div class="card">
+          <div class="section-title">⭐ Overall Rating</div>
+
+          <div class="q-block">
+            <div class="q-label">15. Overall, how excited are you about Project Ronin? <span class="req">*</span></div>
+            <div class="gf-scale">
+              <div class="scale-labels">
+                <span>Not excited</span>
+                <span>Super excited!</span>
+              </div>
+              <div class="scale-row">
+                <div class="scale-item"><input type="radio" name="overall" value="1" required /><span>1</span></div>
+                <div class="scale-item"><input type="radio" name="overall" value="2" /><span>2</span></div>
+                <div class="scale-item"><input type="radio" name="overall" value="3" /><span>3</span></div>
+                <div class="scale-item"><input type="radio" name="overall" value="4" /><span>4</span></div>
+                <div class="scale-item"><input type="radio" name="overall" value="5" /><span>5</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">16. Would you recommend Project Ronin to a developer friend once it launches? <span class="req">*</span></div>
+            <div class="gf-radio-group">
+              <div class="gf-radio-item"><input type="radio" name="recommend" value="Definitely yes!" required id="rec1" /><label for="rec1">Definitely yes! 🚀</label></div>
+              <div class="gf-radio-item"><input type="radio" name="recommend" value="Probably yes" id="rec2" /><label for="rec2">Probably yes</label></div>
+              <div class="gf-radio-item"><input type="radio" name="recommend" value="Maybe" id="rec3" /><label for="rec3">Maybe</label></div>
+              <div class="gf-radio-item"><input type="radio" name="recommend" value="Probably not" id="rec4" /><label for="rec4">Probably not</label></div>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-label">17. Anything else you'd like to share with the team? 🙌</div>
+            <textarea class="gf-textarea" id="q-extra" placeholder="Final thoughts, ideas, or just say hi!"></textarea>
+          </div>
+        </div>
+
+        <!-- Submit row -->
+        <div class="submit-row">
+          <button type="submit" class="gf-submit" id="submit-btn">Submit</button>
+          <button type="button" class="clear-link" onclick="clearForm()">Clear form</button>
+        </div>
+
+        <p style="font-size:12px;color:#5f6368;margin-top:8px;">
+          Never submit passwords through this form.
+        </p>
+
+      </form>
+    </div><!-- /form-screen -->
+
+    <!-- ── SUCCESS SCREEN ── -->
+    <div id="success-screen" class="card">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        </svg>
+      </div>
+      <div class="success-title">Your response has been recorded.</div>
+      <div class="success-body" id="success-msg">
+        Thanks for sharing your suggestions! We'll review every response carefully and
+        use your feedback to prioritise what we build next in Project Ronin.
+        <br /><br />
+        <strong id="success-name"></strong>, look out for updates — we'll reach out when the feature you picked is live. 🚀
+      </div>
+      <div>
+        <a href="https://github.com/arnavryie/git-wit" class="success-link" target="_blank">⭐ Star us on GitHub</a>
+        <button class="another-btn" onclick="anotherResponse()">Submit another response</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="gf-footer">
+      <img src="https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg" alt="Google" />
+      Forms
+      &nbsp;·&nbsp;
+      <a href="https://policies.google.com/privacy" target="_blank">Privacy</a>
+      &nbsp;·&nbsp;
+      <a href="https://policies.google.com/terms" target="_blank">Terms</a>
+    </div>
+
+  </div><!-- /form-wrap -->
+
+  <script>
+    // ── Fake response count (increments each submit) ──
+    let respCount = 47;
+    const respEl = document.getElementById('resp-count');
+
+    // ── Progress bar ──
+    function updateProgress() {
+      const required = ['q-name','q-email'];
+      const radios = ['role','gh-freq','pain','top-feat','ai-useful','skill-match','mobile','overall','recommend'];
+      let filled = 0;
+      const total = required.length + radios.length;
+
+      required.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.value.trim()) filled++;
+      });
+      radios.forEach(name => {
+        if (document.querySelector(`input[name="${name}"]:checked`)) filled++;
+      });
+
+      const pct = Math.round((filled / total) * 100);
+      document.getElementById('progress').style.width = pct + '%';
+    }
+
+    document.querySelectorAll('input[type="radio"]').forEach(r => {
+      r.addEventListener('change', updateProgress);
+    });
+
+    // ── Submit ──
+    function handleSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('q-name').value.trim();
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting…';
+
+      // Simulate network delay
+      setTimeout(() => {
+        respCount++;
+        respEl.textContent = respCount + ' responses';
+
+        // Store in localStorage for fun
+        const responses = JSON.parse(localStorage.getItem('ronin_responses') || '[]');
+        responses.push({
+          timestamp: new Date().toISOString(),
+          name,
+          email: document.getElementById('q-email').value,
+          github: document.getElementById('q-github').value,
+          role: document.querySelector('input[name="role"]:checked')?.value,
+          ghFreq: document.querySelector('input[name="gh-freq"]:checked')?.value,
+          pain: document.querySelector('input[name="pain"]:checked')?.value,
+          topFeature: document.querySelector('input[name="top-feat"]:checked')?.value,
+          aiUseful: document.querySelector('input[name="ai-useful"]:checked')?.value,
+          skillMatch: document.querySelector('input[name="skill-match"]:checked')?.value,
+          mobile: document.querySelector('input[name="mobile"]:checked')?.value,
+          overall: document.querySelector('input[name="overall"]:checked')?.value,
+          recommend: document.querySelector('input[name="recommend"]:checked')?.value,
+          wish: document.getElementById('q-wish').value,
+          suggestion: document.getElementById('q-suggest').value,
+          extra: document.getElementById('q-extra').value,
+          discoveryMethods: [...document.querySelectorAll('#form-screen input[type=checkbox]:checked')].map(c => c.value),
+        });
+        localStorage.setItem('ronin_responses', JSON.stringify(responses));
+
+        // Show success
+        document.getElementById('form-screen').style.display = 'none';
+        const successScreen = document.getElementById('success-screen');
+        successScreen.style.display = 'block';
+        document.getElementById('success-name').textContent = name || 'Friend';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 1200);
+    }
+
+    // ── Clear Form ──
+    function clearForm() {
+      if (confirm('Clear all answers?')) {
+        document.getElementById('main-form').reset();
+        updateProgress();
+      }
+    }
+
+    // ── Another Response ──
+    function anotherResponse() {
+      document.getElementById('success-screen').style.display = 'none';
+      document.getElementById('form-screen').style.display = 'block';
+      document.getElementById('main-form').reset();
+      document.getElementById('submit-btn').disabled = false;
+      document.getElementById('submit-btn').textContent = 'Submit';
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Animate response count on load
+    window.addEventListener('load', () => {
+      let i = 30;
+      const timer = setInterval(() => {
+        i++;
+        if (respEl) respEl.textContent = i + ' responses';
+        if (i >= 47) clearInterval(timer);
+      }, 60);
+    });
+  </script>
+</body>
+</html>

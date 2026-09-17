@@ -1,7 +1,18 @@
 "use client"
 import { useRouter } from "next/navigation"
 
-const TOPIC_FILTERS = ["All", "Python", "TypeScript", "JavaScript", "Rust", "Go", "AI", "React"]
+const TOPIC_FILTERS = [
+  "All",
+  "🌱 Beginner Friendly",
+  "🎯 Career Ready",
+  "Python",
+  "TypeScript",
+  "JavaScript",
+  "Rust",
+  "Go",
+  "AI",
+  "React"
+]
 
 export function FeedFilterPills({ active }: { active: string }) {
   const router = useRouter()
