@@ -38,17 +38,21 @@ export function CommandPalette() {
   }, [close])
 
   useEffect(() => {
-    if (!query.trim()) { setResults([]); return }
     const timer = setTimeout(async () => {
+      if (!query.trim()) {
+        setResults([])
+        return
+      }
       setSearching(true)
       try {
         const repos = await searchRepos(query)
         setResults(repos.slice(0, 5))
       } catch {}
       setSearching(false)
-    }, 300)
+    }, query.trim() ? 300 : 0)
     return () => clearTimeout(timer)
   }, [query])
+
 
   const navigate = (path: string) => {
     router.push(path)

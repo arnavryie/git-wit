@@ -26,9 +26,13 @@ export function ContributionGraph({ username }: ContributionGraphProps) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!username || username === "guest") { setLoading(false); return }
+    if (!username || username === "guest") {
+      const timer = setTimeout(() => setLoading(false), 0)
+      return () => clearTimeout(timer)
+    }
 
     fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`)
+
       .then(r => r.json())
       .then(data => {
         const contributions: ContributionDay[] = data.contributions || []

@@ -18,11 +18,12 @@ export interface Repo {
   languageColor: string;
   stars: number;
   forks: number;
-  forkVelocity: number;
+  forkVelocity?: number;
   topics: string[];
-  updatedAt: string;
-  skillMatch: number;
-  trending: boolean;
+  updatedAt?: string;
+  skillMatch?: number;
+  trending?: boolean;
+  avatarUrl?: string;
 }
 
 interface RepoCardProps {
@@ -58,7 +59,7 @@ export function RepoCardSkeleton() {
 
 
 export default function RepoCard({ repo, userSkills = [] }: RepoCardProps) {
-  const isForkSpike = repo.forkVelocity > 200;
+  const isForkSpike = (repo.forkVelocity ?? 0) > 200;
   const router = useRouter()
   const { data: session } = useSession()
   
@@ -106,7 +107,7 @@ export default function RepoCard({ repo, userSkills = [] }: RepoCardProps) {
       skill.toLowerCase().includes(tech.toLowerCase())
     )
   );
-  const skillMatch = (repo.skillMatch ?? 0) > 0 ? repo.skillMatch : matchedSkills.length;
+  const skillMatch = (repo.skillMatch ?? 0) > 0 ? (repo.skillMatch ?? 0) : matchedSkills.length;
 
 
   return (

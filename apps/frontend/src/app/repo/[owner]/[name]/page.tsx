@@ -68,11 +68,20 @@ export default async function RepoDetailPage({ params }: { params: Promise<{ own
 
           {/* Action stats */}
           <div className="flex items-center gap-2 flex-wrap select-none">
+            <Link
+              href={`/feed?tab=feed&repo=${encodeURIComponent(`${repo.owner}/${repo.name}`)}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-purple-600/20 border border-purple-500/40 rounded-md hover:bg-purple-600/30 text-purple-300 transition-colors font-medium"
+            >
+              <span>⚡</span>
+              <span>Share to Feed</span>
+            </Link>
+
             <a href={repo.htmlUrl} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-gh-surface border border-gh-border rounded-md hover:bg-gh-surface2 transition-colors text-white font-medium">
               <ExternalLink className="w-3.5 h-3.5 text-gh-muted" />
               <span>View on GitHub</span>
             </a>
+
 
             <div className="flex items-center rounded-md border border-gh-border bg-gh-surface text-xs leading-none overflow-hidden">
               <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gh-surface2 transition-colors border-r border-gh-border text-white font-medium">

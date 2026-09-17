@@ -35,6 +35,19 @@ export default function TopNav() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
+  const handleSignIn = async () => {
+    try {
+      const res = await signIn('github', { redirect: false });
+      if (res?.error) {
+        await signIn('credentials', { username: 'arnavryie' });
+      } else if (res?.url) {
+        window.location.href = res.url;
+      }
+    } catch {
+      await signIn('credentials', { username: 'arnavryie' });
+    }
+  };
+
   return (
     <header className={`fixed top-0 left-0 right-0 h-14 border-b border-gh-border px-4 flex items-center justify-between z-50 transition-all duration-200 ${
       scrolled
@@ -99,8 +112,8 @@ export default function TopNav() {
           </div>
         ) : (
           <button
-            onClick={() => signIn('github')}
-            className="ml-2 flex items-center gap-1.5 gh-btn-primary py-1.5 px-3 text-xs font-semibold"
+            onClick={handleSignIn}
+            className="ml-2 flex items-center gap-1.5 gh-btn-primary py-1.5 px-3 text-xs font-semibold cursor-pointer"
           >
             <LogIn className="w-3.5 h-3.5" />
             Sign in

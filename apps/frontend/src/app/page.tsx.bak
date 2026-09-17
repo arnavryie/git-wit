@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TrendingUp, Users, Sparkles, ArrowRight, UserCheck, LogIn } from "lucide-react";
 import { useSession, signIn } from "next-auth/react";
-import { motion } from "framer-motion";
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -14,26 +13,6 @@ function GithubIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
-const Orb = ({ color, style }: { color: string; style?: React.CSSProperties }) => (
-  <motion.div
-    style={style}
-    className={`absolute w-72 h-72 rounded-full pointer-events-none opacity-20 blur-3xl ${
-      color === 'purple' ? 'bg-purple-600' : color === 'blue' ? 'bg-blue-600' : 'bg-cyan-500'
-    }`}
-
-    animate={{
-      scale: [1, 1.2, 1],
-      opacity: [0.2, 0.5, 0.2],
-      rotate: [0, 360, 0],
-    }}
-    transition={{
-      duration: 15,
-      repeat: Infinity,
-      ease: "linear",
-    }}
-  />
-);
 
 export default function LandingPage() {
   const { data: session, status } = useSession();
@@ -96,103 +75,52 @@ export default function LandingPage() {
   }
 
   return (
-    <motion.div
-      className="min-h-screen bg-gh-bg flex flex-col items-center justify-center px-6 text-center relative"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
-    >
-      <Orb color="purple" style={{ top: "10%", left: "10%" }} />
-      <Orb color="blue" style={{ top: "20%", right: "15%" }} />
-      <Orb color="cyan" style={{ bottom: "10%", left: "25%" }} />
-
-      <motion.div
-        className="max-w-2xl flex flex-col items-center gap-6"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, y: 20 },
-          visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.2 } },
-        }}
-      >
-        <motion.div
-          className="flex items-center gap-2 text-3xl font-bold text-white"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
+    <div className="min-h-screen bg-gh-bg flex flex-col items-center justify-center px-6 text-center">
+      <div className="max-w-2xl flex flex-col items-center gap-6">
+        <div className="flex items-center gap-2 text-3xl font-bold text-white">
           <span>⚔️</span>
           <span>Project Ronin</span>
-        </motion.div>
+        </div>
 
-        <motion.h1
-          className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
+        <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight">
           The social layer GitHub<br />never built.
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          className="text-gh-muted text-base sm:text-lg max-w-xl leading-relaxed"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
+        <p className="text-gh-muted text-base sm:text-lg max-w-xl leading-relaxed">
           Discover trending repos before they blow up. Follow the builders who matter.
           Get AI insights on the open-source world. It&apos;s GitHub meets Twitter — for developers.
-        </motion.p>
+        </p>
 
         {/* Action Buttons */}
-        <motion.div
-          className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center mt-2"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center mt-2">
+          <Link
+            href="/feed"
+            className="flex items-center justify-center gap-2 bg-gh-blue text-white font-semibold px-6 py-3 rounded-md hover:bg-blue-600 transition-colors w-full sm:w-auto shadow-lg shadow-blue-500/10"
           >
-            <Link
-              href="/feed"
-              className="flex items-center justify-center gap-2 bg-gh-blue text-white font-semibold px-6 py-3 rounded-md hover:bg-blue-600 transition-colors w-full sm:w-auto shadow-lg shadow-blue-500/10"
-            >
-              <span>Explore Feed</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </motion.div>
+            <span>Explore Feed</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
 
-          <motion.button
+          <button
             onClick={handleDemoLogin}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
             className="flex items-center justify-center gap-2 bg-gh-surface2 text-white font-semibold px-6 py-3 rounded-md hover:bg-[#30363d] border border-gh-border transition-colors w-full sm:w-auto"
           >
             <UserCheck className="w-4 h-4 text-gh-purple" />
             <span>Demo Login (@arnavryie)</span>
-          </motion.button>
+          </button>
 
-          <motion.button
+          <button
             onClick={handleGitHubLogin}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
             className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-6 py-3 rounded-md hover:bg-gray-200 transition-colors w-full sm:w-auto"
           >
             <GithubIcon className="w-4 h-4" />
             <span>Sign in with GitHub</span>
-          </motion.button>
-        </motion.div>
+          </button>
+        </div>
 
         {/* Live Preview Teaser Card */}
-        <motion.div
-          className="w-full mt-4 text-left"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          <motion.div
-            className="gh-card p-5 border border-gh-border/80 hover:border-gh-blue/40 transition-all shadow-xl bg-[#0d1117]/80 backdrop-blur-sm rounded-xl flex flex-col gap-3"
-            whileHover={{ scale: 1.015 }}
-            transition={{ duration: 0.2 }}
-            style={{
-              background: "linear-gradient(135deg, #0d1117, #161b22)",
-              border: "2px solid",
-              borderColor: "rgba(135, 140, 149, 0.1)",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            }}
-          >
+        <div className="w-full mt-4 text-left">
+          <div className="gh-card p-5 border border-gh-border/80 hover:border-gh-blue/40 transition-all shadow-xl bg-[#0d1117]/80 backdrop-blur-sm rounded-xl flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-gh-orange bg-gh-orange/10 px-2.5 py-1 rounded-md border border-gh-orange/20 select-none">
                 <span className="animate-pulse">🔥</span>
@@ -246,78 +174,44 @@ export default function LandingPage() {
                 ✦ Matches your AI & Local LLM stack
               </span>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* Feature Grid */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 w-full"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          <motion.div
-            className="gh-card p-5 flex flex-col items-center gap-2"
-            whileHover={{ y: -6, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 w-full">
+          <div className="gh-card p-5 flex flex-col items-center gap-2">
             <TrendingUp className="w-6 h-6 text-gh-orange" />
             <h3 className="text-white font-semibold text-sm">Trending & Fork Spikes</h3>
             <p className="text-gh-muted text-xs">Discover breakout open-source projects before they reach mainstream radars.</p>
-          </motion.div>
-          <motion.div
-            className="gh-card p-5 flex flex-col items-center gap-2"
-            whileHover={{ y: -6, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
+          </div>
+          <div className="gh-card p-5 flex flex-col items-center gap-2">
             <Users className="w-6 h-6 text-gh-blue" />
             <h3 className="text-white font-semibold text-sm">Developer Communities</h3>
             <p className="text-gh-muted text-xs">Topic-based developer hubs with live repo feeds and active collaborators.</p>
-          </motion.div>
-          <motion.div
-            className="gh-card p-5 flex flex-col items-center gap-2"
-            whileHover={{ y: -6, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
+          </div>
+          <div className="gh-card p-5 flex flex-col items-center gap-2">
             <Sparkles className="w-6 h-6 text-gh-purple" />
             <h3 className="text-white font-semibold text-sm">Dual-Brain AI Insights</h3>
             <p className="text-gh-muted text-xs">Automated repo summaries, issue impact scoring, and developer dossiers.</p>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* Tech Badges */}
-        <motion.div
-          className="flex flex-wrap items-center justify-center gap-2 mt-4 text-[11px] text-gh-muted"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          <motion.span
-            className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-[11px] text-gh-muted">
+          <span className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border">
             MongoDB Atlas Vector Search
-          </motion.span>
-          <motion.span
-            className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
+          </span>
+          <span className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border">
             Gemini 1.5 + Local Qwen 32B
-          </motion.span>
-          <motion.span
-            className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
+          </span>
+          <span className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border">
             768-dim Semantic Skill Matching
-          </motion.span>
-          <motion.span
-            className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
+          </span>
+          <span className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border">
             Next.js 16 + React 19
-          </motion.span>
-        </motion.div>
-      </motion.div>
-    </motion.div>
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }

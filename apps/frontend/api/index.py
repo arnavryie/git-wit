@@ -21,6 +21,7 @@ SEED_COMMUNITIES = [
     {"slug": "python", "name": "Python", "icon": "🐍", "github_topic": "python", "description": "Python libraries, frameworks, and tools", "color": "#3572A5"},
     {"slug": "web3", "name": "Web3 & Blockchain", "icon": "⛓️", "github_topic": "blockchain", "description": "DeFi, smart contracts, crypto protocols", "color": "#f1e05a"},
     {"slug": "mobile", "name": "Mobile Dev", "icon": "📱", "github_topic": "flutter", "description": "iOS, Android, Flutter, React Native", "color": "#00B4AB"},
+    {"slug": "mobile apk", "name": "Mobile Dev", "icon": "📱", "github_topic": "flutter", "description": "iOS, Android, Flutter, React Native", "color": "#00B4AB"},
 ]
 
 async def startup_logic():

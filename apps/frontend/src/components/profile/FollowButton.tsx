@@ -6,23 +6,21 @@ import { toast } from "sonner"
 export function FollowButton({ targetUserId, targetUsername }: { targetUserId: string, targetUsername: string }) {
   const { data: session } = useSession()
   const [isFollowing, setIsFollowing] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!session?.user?.email) {
-      setLoading(false)
-      return
-    }
+    if (!session?.user?.email) return
     
-    // Check if following
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/following/${session.user.email}`)
+    setLoading(true)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "/api"}/following/${session.user.email}`)
       .then(res => res.json())
       .then(data => {
         setIsFollowing(data.following?.includes(targetUsername))
-        setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [session, targetUsername])
+
 
   const handleFollow = async () => {
     if (!session?.user?.email) return
@@ -30,7 +28,7 @@ export function FollowButton({ targetUserId, targetUsername }: { targetUserId: s
     setLoading(true)
     const endpoint = isFollowing ? "unfollow" : "follow"
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "/api"}/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

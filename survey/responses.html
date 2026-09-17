@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Ronin — Survey Responses</title>
+  <link rel="icon" href="https://ssl.gstatic.com/docs/spreadsheets/forms/favicon_qp2.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+      background: #f8f9fa;
+      min-height: 100vh;
+      color: #202124;
+    }
+
+    .top-bar {
+      background: #fff;
+      border-bottom: 1px solid #dadce0;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+    .top-bar img { height: 28px; }
+    .top-bar .title {
+      font-size: 18px;
+      color: #5f6368;
+      font-weight: 400;
+    }
+    .top-bar .subtitle {
+      font-size: 13px;
+      color: #1a73e8;
+      margin-left: 8px;
+      background: #e8f0fe;
+      padding: 3px 10px;
+      border-radius: 12px;
+    }
+    .top-bar .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .btn-sm {
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid #dadce0;
+      background: #fff;
+      color: #202124;
+      font-family: inherit;
+      transition: background .1s;
+    }
+    .btn-sm:hover { background: #f1f3f4; }
+    .btn-primary {
+      background: #1a73e8;
+      color: #fff;
+      border-color: #1a73e8;
+    }
+    .btn-primary:hover { background: #1557b0; }
+
+    .summary-row {
+      display: flex;
+      gap: 12px;
+      padding: 20px 24px;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 16px 24px;
+      min-width: 140px;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06);
+    }
+    .stat-num { font-size: 32px; font-weight: 500; color: #1a73e8; }
+    .stat-label { font-size: 12px; color: #5f6368; margin-top: 4px; }
+
+    .chart-row {
+      display: flex;
+      gap: 16px;
+      padding: 0 24px 20px;
+      flex-wrap: wrap;
+    }
+    .chart-card {
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      flex: 1;
+      min-width: 280px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06);
+    }
+    .chart-card h3 { font-size: 14px; color: #202124; margin-bottom: 12px; font-weight: 500; }
+
+    .bar-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .bar-label { font-size: 12px; color: #5f6368; width: 200px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; background: #f1f3f4; border-radius: 2px; height: 16px; position: relative; }
+    .bar-fill { height: 100%; border-radius: 2px; transition: width .6s ease; }
+    .bar-count { font-size: 12px; color: #5f6368; width: 28px; text-align: right; }
+
+    .table-wrap {
+      padding: 0 24px 40px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 13px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    thead tr {
+      background: #f8f9fa;
+      border-bottom: 1px solid #dadce0;
+    }
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 500;
+      color: #5f6368;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f3f4;
+      color: #202124;
+      vertical-align: top;
+      max-width: 200px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f9fa; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .badge-blue { background: #e8f0fe; color: #1a73e8; }
+    .badge-green { background: #e6f4ea; color: #1e8e3e; }
+    .badge-purple { background: #f3e8fd; color: #673ab7; }
+    .badge-orange { background: #fef7e0; color: #f29900; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: #5f6368;
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+    .empty-state a { color: #1a73e8; }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #dadce0;
+      padding: 0 24px;
+      background: #fff;
+    }
+    .tab {
+      padding: 12px 20px;
+      font-size: 14px;
+      color: #5f6368;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      font-weight: 500;
+      transition: color .15s;
+    }
+    .tab.active { color: #1a73e8; border-bottom-color: #1a73e8; }
+    .tab:hover { color: #202124; background: #f8f9fa; }
+
+    #tab-summary, #tab-individual { display: block; }
+
+    .tag {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #1a73e8;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 11px;
+      margin: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <img src="https://ssl.gstatic.com/docs/spreadsheets/forms/favicon_qp2.png" alt="Forms" />
+  <div>
+    <div class="title">⚔️ Project Ronin — Feature Suggestions &amp; Feedback</div>
+  </div>
+  <span class="subtitle" id="total-badge">0 responses</span>
+  <div class="right">
+    <button class="btn-sm" onclick="window.open('index.html','_blank')">🔗 Open Form</button>
+    <button class="btn-sm btn-primary" onclick="exportCSV()">⬇ Download CSV</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('summary')">📊 Summary</div>
+  <div class="tab" onclick="showTab('individual')">📝 Individual Responses</div>
+</div>
+
+<!-- SUMMARY TAB -->
+<div id="tab-summary">
+  <div class="summary-row" id="stats-row"></div>
+  <div class="chart-row" id="charts-row"></div>
+</div>
+
+<!-- INDIVIDUAL TAB -->
+<div id="tab-individual" style="display:none">
+  <div class="table-wrap">
+    <div id="table-container"></div>
+  </div>
+</div>
+
+<script>
+  // ── SEED DATA (realistic fake responses for teacher demo) ──
+  const SEED = [
+    {
+      timestamp: "2026-09-14T10:22:00.000Z", name: "Priya Sharma", email: "priya.sharma@gmail.com",
+      github: "priyacode", role: "Student (School / College)",
+      ghFreq: "A few times a week", pain: "No personalisation — I see random repos unrelated to my skills",
+      topFeature: "Personalised 'For You' feed — trending repos matched to my language stack using AI",
+      aiUseful: "5", skillMatch: "5", mobile: "Yes, absolutely — mobile-first for me",
+      overall: "5", recommend: "Definitely yes!",
+      wish: "I wish GitHub showed me repos in Python and ML since that's what I study",
+      suggestion: "Add a 'beginner-friendly' filter so students like me can find good first issues",
+      extra: "Amazing idea! Can't wait to try it.",
+      discoveryMethods: ["Reddit (r/programming, r/webdev, etc.)", "YouTube / Dev influencers"]
+    },
+    {
+      timestamp: "2026-09-14T11:05:00.000Z", name: "Rahul Mehta", email: "rahulmehta.dev@gmail.com",
+      github: "rahulm", role: "Software Developer / Engineer",
+      ghFreq: "Daily", pain: "No social element — I can't see what my network is working on",
+      topFeature: "Social Layer — follow developers, post updates, like and share repos (GitHub meets Twitter)",
+      aiUseful: "4", skillMatch: "5", mobile: "Yes, but desktop is fine for now",
+      overall: "5", recommend: "Definitely yes!",
+      wish: "A LinkedIn-style feed but for GitHub activity",
+      suggestion: "Show me what repos my GitHub connections are starring or forking in real time",
+      extra: "This is exactly what the dev community needs!",
+      discoveryMethods: ["Twitter / X Developer posts", "Friends / Colleagues sharing links"]
+    },
+    {
+      timestamp: "2026-09-14T13:30:00.000Z", name: "Aisha Khan", email: "aishakhan99@outlook.com",
+      github: "", role: "Student (School / College)",
+      ghFreq: "Occasionally (when needed)", pain: "Descriptions are too technical and hard to understand quickly",
+      topFeature: "AI Repo Summaries — Gemini explains what any repo does in plain English",
+      aiUseful: "5", skillMatch: "4", mobile: "Yes, absolutely — mobile-first for me",
+      overall: "4", recommend: "Probably yes",
+      wish: "Simple explanations of what a repo actually does without reading docs",
+      suggestion: "Add a TL;DR button for every repo — 3 sentences max",
+      extra: "Love the concept, keep it simple for non-coders too!",
+      discoveryMethods: ["YouTube / Dev influencers"]
+    },
+    {
+      timestamp: "2026-09-14T16:10:00.000Z", name: "Dev Patel", email: "dev.patel@iitbombay.edu",
+      github: "devpatel2k", role: "Open-source Contributor",
+      ghFreq: "Daily", pain: "I don't know which repos are worth contributing to",
+      topFeature: "Issue Impact Scoring — AI scores GitHub issues by difficulty and impact so I know where to contribute",
+      aiUseful: "4", skillMatch: "5", mobile: "Doesn't matter to me",
+      overall: "5", recommend: "Definitely yes!",
+      wish: "GitHub should auto-tag issues as 'good for beginners' with AI",
+      suggestion: "Show estimated time to fix an issue alongside the impact score",
+      extra: "Will definitely use this for finding contribution opportunities",
+      discoveryMethods: ["GitHub Explore / Trending", "Dev newsletters (TLDR, Hackernewsletter, etc.)"]
+    },
+    {
+      timestamp: "2026-09-15T09:00:00.000Z", name: "Sneha Reddy", email: "sneha.reddy22@gmail.com",
+      github: "snehacodes", role: "Student (School / College)",
+      ghFreq: "Weekly", pain: "Hard to find repos in my specific language / stack",
+      topFeature: "AI Developer Dossier — a shareable profile card generated from my GitHub history",
+      aiUseful: "5", skillMatch: "4", mobile: "Yes, absolutely — mobile-first for me",
+      overall: "5", recommend: "Definitely yes!",
+      wish: "A beautiful shareable card that shows my GitHub skills to recruiters",
+      suggestion: "Make the dossier exportable as a PDF or image to add to resumes",
+      extra: "Please make the dossier look really premium 🔥",
+      discoveryMethods: ["Friends / Colleagues sharing links", "Discord / Slack communities"]
+    },
+    {
+      timestamp: "2026-09-15T11:20:00.000Z", name: "Arjun Nair", email: "arjun.nair@college.ac.in",
+      github: "arjunnair_dev", role: "Student (School / College)",
+      ghFreq: "A few times a week", pain: "No personalisation — I see random repos unrelated to my skills",
+      topFeature: "Personalised 'For You' feed — trending repos matched to my language stack using AI",
+      aiUseful: "5", skillMatch: "5", mobile: "Yes, but desktop is fine for now",
+      overall: "5", recommend: "Definitely yes!",
+      wish: "Personalized GitHub Explore based on my actual repos and commits",
+      suggestion: "Let me set my goals (e.g. 'get a job', 'learn ML') and recommend repos toward that goal",
+      extra: "Great project! Rooting for you guys.",
+      discoveryMethods: ["Reddit (r/programming, r/webdev, etc.)", "GitHub Explore / Trending"]
+    },
+    {
+      timestamp: "2026-09-15T14:45:00.000Z", name: "Tanya Gupta", email: "tanya.gupta.xyz@gmail.com",
+      github: "", role: "Tech Enthusiast / Hobbyist",
+      ghFreq: "Occasionally (when needed)", pain: "Descriptions are too technical and hard to understand quickly",
+      topFeature: "AI Repo Summaries — Gemini explains what any repo does in plain English",
+      aiUseful: "5", skillMatch: "3", mobile: "Yes, absolutely — mobile-first for me",
+      overall: "4", recommend: "Probably yes",
+      wish: "Explain repos like I'm 5 years old",
+      suggestion: "Add a 'non-technical' mode that explains repos in everyday language",
+      extra: "I follow GitHub trending but never understand what half the repos do!",
+      discoveryMethods: ["YouTube / Dev influencers", "Twitter / X Developer posts"]
+    },
+    {
+      timestamp: "2026-09-16T08:15:00.000Z", name: "Kiran Verma", email: "kiran.verma99@hotmail.com",
+      github: "kiranv", role: "Freelancer / Solo Builder",
+      ghFreq: "Daily", pain: "No social element — I can't see what my network is working on",
+      topFeature: "Fork Velocity Alerts — get notified when a repo suddenly goes viral",
+      aiUseful: "4", skillMatch: "4", mobile: "Doesn't matter to me",
+      overall: "4", recommend: "Definitely yes!",
+      wish: "Early warnings when a project is about to go viral so I can ride the wave",
+      suggestion: "Send push notifications when a repo in my stack spikes in forks",
+      extra: "Love the fork velocity idea — that's super useful for freelancers",
+      discoveryMethods: ["Dev newsletters (TLDR, Hackernewsletter, etc.)", "Twitter / X Developer posts"]
+    },
+    {
+      timestamp: "2026-09-16T10:00:00.000Z", name: "Nisha Joshi", email: "nishajoshi.cs@gmail.com",
+      github: "nishaj_codes", role: "Student (School / College)",
+      ghFreq: "A few times a week", pain: "No personalisation — I see random repos unrelated to my skills",
+      topFeature: "Developer Communities — topic-based hubs (AI/ML, Frontend, DevOps) with real repos",
+      aiUseful: "5", skillMatch: "5", mobile: "Yes, absolutely — mobile-first for me",
+      overall: "5", recommend: "Definitely yes!",
+      wish: "A community where AI/ML students discuss repos and papers together",
+      suggestion: "Add weekly challenges — 'Contribute to this repo this week' with badges",
+      extra: "Excited!! Please build the communities feature first 🙏",
+      discoveryMethods: ["Discord / Slack communities", "Friends / Colleagues sharing links"]
+    },
+    {
+      timestamp: "2026-09-16T12:30:00.000Z", name: "Rohan Singh", email: "rohansingh.dev23@gmail.com",
+      github: "rohandev23", role: "Software Developer / Engineer",
+      ghFreq: "Daily", pain: "I don't know which repos are worth contributing to",
+      topFeature: "Issue Impact Scoring — AI scores GitHub issues by difficulty and impact so I know where to contribute",
+      aiUseful: "4", skillMatch: "5", mobile: "Yes, but desktop is fine for now",
+      overall: "5", recommend: "Definitely yes!",
+      wish: "GitHub should surface issues that match my experience level automatically",
+      suggestion: "Integration with LinkedIn — import my work experience to refine recommendations",
+      extra: "Fantastic product idea. Will share with my dev friends.",
+      discoveryMethods: ["GitHub Explore / Trending", "Dev newsletters (TLDR, Hackernewsletter, etc.)"]
+    },
+  ];
+
+  // Load real + seed responses
+  function getResponses() {
+    const real = JSON.parse(localStorage.getItem('ronin_responses') || '[]');
+    return [...SEED, ...real];
+  }
+
+  const responses = getResponses();
+
+  // ── Update badge ──
+  document.getElementById('total-badge').textContent = responses.length + ' responses';
+
+  // ── Tab switching ──
+  function showTab(name) {
+    document.getElementById('tab-summary').style.display = name === 'summary' ? 'block' : 'none';
+    document.getElementById('tab-individual').style.display = name === 'individual' ? 'block' : 'none';
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (name==='summary'&&i===0)||(name==='individual'&&i===1)));
+  }
+
+  // ── Stats ──
+  const statsRow = document.getElementById('stats-row');
+  const totalResp = responses.length;
+  const avgOverall = (responses.reduce((s,r)=>s+parseInt(r.overall||3),0)/totalResp).toFixed(1);
+  const avgAI = (responses.reduce((s,r)=>s+parseInt(r.aiUseful||3),0)/totalResp).toFixed(1);
+  const pctDefYes = Math.round(responses.filter(r=>r.recommend==='Definitely yes!').length/totalResp*100);
+
+  [
+    { num: totalResp, label: 'Total Responses' },
+    { num: avgOverall + '/5', label: 'Avg Excitement' },
+    { num: avgAI + '/5', label: 'Avg AI Usefulness' },
+    { num: pctDefYes + '%', label: 'Would Recommend' },
+  ].forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'stat-card';
+    el.innerHTML = `<div class="stat-num">${s.num}</div><div class="stat-label">${s.label}</div>`;
+    statsRow.appendChild(el);
+  });
+
+  // ── Charts ──
+  const chartsRow = document.getElementById('charts-row');
+
+  function barChart(title, data, colors) {
+    const max = Math.max(...Object.values(data));
+    const card = document.createElement('div');
+    card.className = 'chart-card';
+    card.innerHTML = `<h3>${title}</h3>` + Object.entries(data)
+      .sort((a,b) => b[1]-a[1])
+      .map(([label,count], i) => {
+        const pct = max ? Math.round(count/max*100) : 0;
+        const color = colors[i % colors.length];
+        return `<div class="bar-item">
+          <div class="bar-label" title="${label}">${label}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+          <div class="bar-count">${count}</div>
+        </div>`;
+      }).join('');
+    chartsRow.appendChild(card);
+  }
+
+  // Top feature chart
+  const featCounts = {};
+  responses.forEach(r => {
+    const k = (r.topFeature||'').split(' — ')[0];
+    if (k) featCounts[k] = (featCounts[k]||0)+1;
+  });
+  barChart('⭐ Most Exciting Feature', featCounts, ['#1a73e8','#673ab7','#1e8e3e','#f29900','#d93025','#00bcd4','#ff7043']);
+
+  // Pain point chart
+  const painCounts = {};
+  responses.forEach(r => {
+    const k = (r.pain||'').split(' — ')[0];
+    if (k) painCounts[k] = (painCounts[k]||0)+1;
+  });
+  barChart('🔥 Biggest Pain Point', painCounts, ['#d93025','#f29900','#1a73e8','#673ab7','#1e8e3e','#00bcd4']);
+
+  // Mobile chart
+  const mobCounts = {};
+  responses.forEach(r => { if(r.mobile) mobCounts[r.mobile] = (mobCounts[r.mobile]||0)+1; });
+  barChart('📱 Mobile App Interest', mobCounts, ['#1e8e3e','#1a73e8','#5f6368','#d93025']);
+
+  // ── Individual Table ──
+  const tableContainer = document.getElementById('table-container');
+  if (responses.length === 0) {
+    tableContainer.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No responses yet. <a href="index.html">Open the form</a> and submit a response.</p></div>`;
+  } else {
+    const cols = ['Timestamp','Name','Email','GitHub','Role','Top Feature','Overall','Recommend','Suggestion'];
+    tableContainer.innerHTML = `<table>
+      <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${responses.map(r => {
+          const date = new Date(r.timestamp).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+          const feat = (r.topFeature||'').split(' — ')[0] || '—';
+          const recColor = r.recommend==='Definitely yes!' ? 'badge-green' : r.recommend==='Probably yes' ? 'badge-blue' : 'badge-orange';
+          const overall = r.overall ? `${'⭐'.repeat(parseInt(r.overall))} (${r.overall}/5)` : '—';
+          const sugg = r.suggestion ? r.suggestion.substring(0,80) + (r.suggestion.length > 80 ? '…' : '') : '—';
+          return `<tr>
+            <td style="font-size:11px;color:#5f6368">${date}</td>
+            <td><strong>${r.name||'—'}</strong></td>
+            <td style="font-size:12px">${r.email||'—'}</td>
+            <td>${r.github ? `<span class="tag">@${r.github}</span>` : '—'}</td>
+            <td><span class="badge badge-purple">${(r.role||'').split(' (')[0]||'—'}</span></td>
+            <td style="font-size:12px">${feat}</td>
+            <td style="text-align:center">${overall}</td>
+            <td><span class="badge ${recColor}">${r.recommend||'—'}</span></td>
+            <td style="font-size:12px;color:#5f6368">${sugg}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  // ── CSV Export ──
+  function exportCSV() {
+    const cols = ['Timestamp','Name','Email','GitHub','Role','GH Frequency','Pain Point','Top Feature','AI Useful','Skill Match','Mobile','Overall','Recommend','Wish','Suggestion','Extra'];
+    const rows = responses.map(r => [
+      r.timestamp, r.name, r.email, r.github||'', r.role, r.ghFreq,
+      r.pain, r.topFeature, r.aiUseful, r.skillMatch, r.mobile,
+      r.overall, r.recommend, r.wish||'', r.suggestion||'', r.extra||''
+    ].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+
+    const csv = [cols.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'ronin_survey_responses.csv';
+    a.click(); URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>
