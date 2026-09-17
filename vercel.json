@@ -1,6 +1,0 @@
-{
-  "buildCommand": "npm --prefix apps/frontend install --legacy-peer-deps && npm --prefix apps/frontend run build",
-  "outputDirectory": "apps/frontend/.next",
-  "framework": "nextjs",
-  "installCommand": "echo 'deps handled in buildCommand'"
-}
