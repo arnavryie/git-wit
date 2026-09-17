@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -77,10 +77,37 @@ export default function RepoCard({ repo, userSkills = [] }: RepoCardProps) {
   
   const [bookmarked, setBookmarked] = useState(false)
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = JSON.parse(localStorage.getItem("ronin_bookmarks") || "[]")
+        setBookmarked(saved.some((b: any) => b.repo_full_name === `${repo.owner}/${repo.name}`))
+      } catch {}
+    }
+  }, [repo.owner, repo.name])
+
   const handleBookmark = async () => {
     const newState = !bookmarked
     setBookmarked(newState)
     toast(newState ? "🔖 Saved to bookmarks" : "Removed from bookmarks")
+
+    if (typeof window !== "undefined") {
+      try {
+        let saved = JSON.parse(localStorage.getItem("ronin_bookmarks") || "[]")
+        if (newState) {
+          if (!saved.some((b: any) => b.repo_full_name === `${repo.owner}/${repo.name}`)) {
+            saved.unshift({
+              repo_full_name: `${repo.owner}/${repo.name}`,
+              repo_data: repo
+            })
+          }
+        } else {
+          saved = saved.filter((b: any) => b.repo_full_name !== `${repo.owner}/${repo.name}`)
+        }
+        localStorage.setItem("ronin_bookmarks", JSON.stringify(saved))
+      } catch {}
+    }
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api"
     const userId = session?.user?.email || "anonymous"
     try {

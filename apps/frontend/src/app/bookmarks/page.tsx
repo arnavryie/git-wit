@@ -11,12 +11,29 @@ export default function BookmarksPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!session?.user?.email) { setLoading(false); return }
+    let localSaved: any[] = []
+    if (typeof window !== "undefined") {
+      try {
+        localSaved = JSON.parse(localStorage.getItem("ronin_bookmarks") || "[]")
+      } catch {}
+    }
+    if (localSaved.length > 0) {
+      setBookmarks(localSaved)
+      setLoading(false)
+      return
+    }
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api"
-    fetch(`${apiUrl}/bookmarks/${session.user.email}`)
+    const userEmail = session?.user?.email || "guest"
+    fetch(`${apiUrl}/bookmarks/${userEmail}`)
       .then(r => r.json())
-      .then(data => setBookmarks(Array.isArray(data) ? data : []))
-      .catch(() => setBookmarks([]))
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setBookmarks(data)
+        } else {
+          setBookmarks(localSaved)
+        }
+      })
+      .catch(() => setBookmarks(localSaved))
       .finally(() => setLoading(false))
   }, [session])
 

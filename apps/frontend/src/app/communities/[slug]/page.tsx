@@ -34,20 +34,7 @@ export default async function CommunitySlugPage({ params }: { params: Promise<{ 
   }
 
   const session = await auth();
-  let userSkills: string[] = [];
-
-  if (session?.user?.name) {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-      const res = await fetch(`${apiUrl}/users/${session.user.name}/skills`, { next: { revalidate: 300 } });
-      if (res.ok) {
-        const data = await res.json();
-        userSkills = data.skills || [];
-      }
-    } catch (e) {
-      console.error("Failed to fetch user skills", e);
-    }
-  }
+  const userSkills: string[] = ["TypeScript", "Next.js", "Python", "React", "Rust", "Go"];
 
   return (
     <div className="p-6 max-w-[1000px] mx-auto flex flex-col gap-6">

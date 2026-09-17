@@ -41,34 +41,26 @@ export default function LandingPage() {
   const [loggingIn, setLoggingIn] = useState(false);
   const [inputUsername, setInputUsername] = useState("");
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.push("/feed");
-    }
-  }, [status, router]);
+  // Keep landing page accessible even when authenticated so user can enter custom usernames
+  const activeUser = (session?.user as any)?.login || session?.user?.name;
 
   const handleUserLogin = async (targetUser?: string) => {
-    const userToLogin = (targetUser || inputUsername || "arnavryie").trim().replace(/^@/, "");
-    if (!userToLogin) return;
+    const raw = (targetUser || inputUsername || "arnavryie").trim().replace(/^@/, "");
+    const userToLogin = raw || "arnavryie";
     setLoggingIn(true);
     try {
       if (typeof window !== "undefined") {
         localStorage.setItem("ronin_active_user", userToLogin);
       }
-      const res = await signIn("credentials", {
+      await signIn("credentials", {
         username: userToLogin,
         redirect: false,
-        callbackUrl: `/profile/${userToLogin}`,
       });
-      if (res?.error) {
-        console.warn("Credentials login warning:", res.error);
-      }
-      router.push(`/profile/${userToLogin}`);
     } catch (e) {
-      console.error("Login fallback:", e);
-      router.push(`/profile/${userToLogin}`);
+      console.warn("Credentials login warning:", e);
     } finally {
       setLoggingIn(false);
+      router.push(`/profile/${userToLogin}`);
     }
   };
 
@@ -133,6 +125,19 @@ export default function LandingPage() {
           <span>⚔️</span>
           <span>Project Ronin</span>
         </motion.div>
+
+        {activeUser && (
+          <motion.div
+            className="flex items-center gap-2 bg-purple-950/70 border border-purple-700/60 px-3.5 py-1.5 rounded-full text-xs text-purple-200 shadow-md backdrop-blur-sm"
+            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
+          >
+            <span>Active session: <strong className="text-white">@{activeUser}</strong></span>
+            <span className="text-purple-400">•</span>
+            <Link href="/feed" className="text-gh-blue hover:underline font-semibold flex items-center gap-1">
+              Go to Feed <ArrowRight className="w-3 h-3" />
+            </Link>
+          </motion.div>
+        )}
 
         <motion.h1
           className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight"

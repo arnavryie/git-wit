@@ -11,8 +11,22 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   
-  const username = (session?.user as any)?.login || session?.user?.name || 'guest';
-  const avatar = session?.user?.image || `https://api.dicebear.com/7.x/initials/svg?seed=${username}`;
+  const [activeUser, setActiveUser] = React.useState<string>('arnavryie');
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ronin_active_user');
+      if (saved) {
+        setActiveUser(saved);
+      } else if (session?.user) {
+        const u = (session.user as any)?.login || session.user.name || 'arnavryie';
+        setActiveUser(u);
+      }
+    }
+  }, [session]);
+
+  const username = (session?.user as any)?.login || session?.user?.name || activeUser;
+  const avatar = session?.user?.image || `https://github.com/${username}.png`;
   const displayName = session?.user?.name || username;
 
   const navItems = [
@@ -29,26 +43,20 @@ export default function Sidebar() {
     <aside className="w-16 md:w-[240px] shrink-0 h-[calc(100vh-56px)] fixed left-0 top-14 bg-gh-bg border-r border-gh-border flex flex-col justify-between py-4 z-40">
       <div className="flex flex-col gap-5 px-3">
         {/* User Card - Hidden on mobile */}
-        {session ? (
-          <div className="hidden md:flex items-center gap-3 px-2 py-1 select-none">
-            <img 
-              src={avatar}
-              alt={displayName}
-              className="w-10 h-10 rounded-full border border-gh-border bg-gh-surface"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${username}`;
-              }}
-            />
-            <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-semibold text-white truncate">{displayName}</span>
-              <span className="text-xs text-gh-muted truncate">@{username}</span>
-            </div>
+        <Link href={`/profile/${username}`} className="hidden md:flex items-center gap-3 px-2 py-1 select-none hover:bg-gh-surface rounded-md transition-colors">
+          <img 
+            src={avatar}
+            alt={displayName}
+            className="w-10 h-10 rounded-full border border-gh-border bg-gh-surface shrink-0"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${username}`;
+            }}
+          />
+          <div className="flex flex-col overflow-hidden">
+            <span className="text-sm font-semibold text-white truncate">{displayName}</span>
+            <span className="text-xs text-gh-muted truncate">@{username}</span>
           </div>
-        ) : (
-          <div className="hidden md:flex items-center gap-3 px-2 py-1 select-none h-[48px]">
-            <span className="text-xs text-gh-muted">Not logged in</span>
-          </div>
-        )}
+        </Link>
 
         {/* Divider */}
         <hr className="hidden md:block border-gh-border -mx-3" />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Flame } from 'lucide-react';
 import RepoCard from '@/components/feed/RepoCard';
-import { getTrendingRepos } from '@/lib/github-api';
+import { getTrendingRepos, FALLBACK_TRENDING_REPOS } from '@/lib/github-api';
 import { auth } from "@/app/api/auth/[...nextauth]/route";
 
 const LANGUAGES = ["", "Python", "TypeScript", "JavaScript", "Rust", "Go", "Java", "C++"];
@@ -22,25 +22,14 @@ export default async function TrendingPage({
   try {
     repos = await getTrendingRepos(language || undefined, period);
   } catch (e) {
-    repos = [];
+    repos = FALLBACK_TRENDING_REPOS;
+  }
+  if (!repos || repos.length === 0) {
+    repos = FALLBACK_TRENDING_REPOS;
   }
 
   const session = await auth();
-  let userSkills: string[] = [];
-  const githubLogin = (session as any)?.githubLogin;
-
-  if (githubLogin) {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-      const res = await fetch(`${apiUrl}/users/${githubLogin}/skills`, { next: { revalidate: 300 } });
-      if (res.ok) {
-        const data = await res.json();
-        userSkills = data.skills || [];
-      }
-    } catch (e) {
-      console.error("Failed to fetch user skills", e);
-    }
-  }
+  const userSkills: string[] = ["TypeScript", "Next.js", "Python", "React", "Rust", "Go"];
 
   return (
     <div className="p-6 max-w-[1000px] mx-auto flex flex-col gap-6">

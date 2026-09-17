@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Compass } from 'lucide-react';
 import { getTrendingRepos } from '@/lib/github-api';
 import RepoCard from '@/components/feed/RepoCard';
@@ -29,13 +30,21 @@ export default async function ExplorePage() {
       <div className="flex flex-col gap-2.5">
         <span className="text-xs font-bold text-gh-muted uppercase tracking-wider select-none">Popular Topics</span>
         <div className="flex flex-wrap gap-2">
-          {topics.map((topic) => (
-            <button 
-              key={topic}
-              className="text-xs font-semibold text-gh-text bg-gh-surface border border-gh-border hover:border-gh-muted px-3 py-1.5 rounded-md cursor-pointer transition-colors"
+          {[
+            { label: "Machine Learning", href: "/communities/ai-ml" },
+            { label: "React", href: "/communities/ui-frontend" },
+            { label: "Next.js", href: "/communities/ui-frontend" },
+            { label: "Web3", href: "/communities/web3" },
+            { label: "Rust & Systems", href: "/communities/systems" },
+            { label: "DevOps & Cloud", href: "/communities/devops" },
+          ].map((t) => (
+            <Link
+              key={t.label}
+              href={t.href}
+              className="text-xs font-semibold text-gh-text bg-gh-surface border border-gh-border hover:border-gh-blue hover:text-white px-3 py-1.5 rounded-md transition-colors"
             >
-              {topic}
-            </button>
+              {t.label} →
+            </Link>
           ))}
         </div>
       </div>
