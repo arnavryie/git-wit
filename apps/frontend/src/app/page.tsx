@@ -39,6 +39,7 @@ export default function LandingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loggingIn, setLoggingIn] = useState(false);
+  const [inputUsername, setInputUsername] = useState("");
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -46,41 +47,51 @@ export default function LandingPage() {
     }
   }, [status, router]);
 
-  const handleDemoLogin = async () => {
+  const handleUserLogin = async (targetUser?: string) => {
+    const userToLogin = (targetUser || inputUsername || "arnavryie").trim().replace(/^@/, "");
+    if (!userToLogin) return;
     setLoggingIn(true);
     try {
-      await signIn("credentials", {
-        username: "arnavryie",
-        callbackUrl: "/feed",
+      if (typeof window !== "undefined") {
+        localStorage.setItem("ronin_active_user", userToLogin);
+      }
+      const res = await signIn("credentials", {
+        username: userToLogin,
+        redirect: false,
+        callbackUrl: `/profile/${userToLogin}`,
       });
+      if (res?.error) {
+        console.warn("Credentials login warning:", res.error);
+      }
+      router.push(`/profile/${userToLogin}`);
     } catch (e) {
-      console.error(e);
-      router.push("/feed");
+      console.error("Login fallback:", e);
+      router.push(`/profile/${userToLogin}`);
     } finally {
       setLoggingIn(false);
     }
   };
 
+  const handleViewProfile = (targetUser?: string) => {
+    const userToView = (targetUser || inputUsername || "arnavryie").trim().replace(/^@/, "");
+    if (!userToView) return;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ronin_active_user", userToView);
+    }
+    router.push(`/profile/${userToView}`);
+  };
+
   const handleGitHubLogin = async () => {
     setLoggingIn(true);
     try {
-      // If GitHub OAuth credentials are mock/default, fallback seamlessly to demo sign in
       const res = await signIn("github", { callbackUrl: "/feed", redirect: false });
       if (res?.error) {
-        // Fallback to demo login if github oauth client is not configured
-        await signIn("credentials", {
-          username: "arnavryie",
-          callbackUrl: "/feed",
-        });
+        await handleUserLogin(inputUsername || "arnavryie");
       } else if (res?.url) {
         window.location.href = res.url;
       }
     } catch (e) {
-      // Fallback
-      await signIn("credentials", {
-        username: "arnavryie",
-        callbackUrl: "/feed",
-      });
+      await handleUserLogin(inputUsername || "arnavryie");
     } finally {
       setLoggingIn(false);
     }
@@ -97,7 +108,7 @@ export default function LandingPage() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gh-bg flex flex-col items-center justify-center px-6 text-center relative"
+      className="min-h-screen bg-gh-bg flex flex-col items-center justify-center px-6 text-center relative py-12"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
@@ -138,39 +149,101 @@ export default function LandingPage() {
           Get AI insights on the open-source world. It&apos;s GitHub meets Twitter — for developers.
         </motion.p>
 
-        {/* Action Buttons */}
+        {/* Enter Any GitHub Username & Explore Box */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center mt-2"
+          className="w-full bg-[#161b22]/90 border border-purple-500/40 rounded-xl p-3.5 sm:p-5 shadow-2xl backdrop-blur-md flex flex-col gap-3 text-left"
+          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+        >
+          <div className="flex items-center justify-between text-xs px-0.5">
+            <span className="flex items-center gap-1.5 text-purple-300 font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span>Lookup Any GitHub Profile &amp; Login</span>
+            </span>
+            <span className="text-[11px] text-neutral-400 hidden sm:inline">Enter any public handle</span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <div className="relative w-full flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 font-mono text-sm font-semibold">@</span>
+              <input
+                type="text"
+                value={inputUsername}
+                onChange={(e) => setInputUsername(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleViewProfile(inputUsername || "arnavryie");
+                  }
+                }}
+                placeholder="Enter GitHub username (e.g. torvalds, arnavryie, shadcn)"
+                className="w-full bg-[#0d1117] border border-gh-border text-white pl-8 pr-3 py-2.5 text-sm rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-mono transition-all"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => handleViewProfile(inputUsername || "arnavryie")}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-xs px-4 py-2.5 rounded-lg transition-all shadow-md cursor-pointer shrink-0"
+              >
+                <span>View Profile</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleUserLogin(inputUsername || "arnavryie")}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-gh-surface2 hover:bg-[#30363d] border border-gh-border text-neutral-200 font-semibold text-xs px-3.5 py-2.5 rounded-lg transition-colors cursor-pointer shrink-0"
+                title="Login with this profile"
+              >
+                <UserCheck className="w-3.5 h-3.5 text-purple-400" />
+                <span>Demo Login</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick presets */}
+          <div className="flex items-center gap-1.5 flex-wrap text-[11px] text-gh-muted px-0.5 pt-1">
+            <span className="text-neutral-400">Popular:</span>
+            {["arnavryie", "torvalds", "shadcn", "gaearon", "karpathy"].map((u) => (
+              <button
+                key={u}
+                type="button"
+                onClick={() => {
+                  setInputUsername(u);
+                  handleViewProfile(u);
+                }}
+                className="text-purple-300 hover:text-white hover:underline bg-purple-950/40 border border-purple-800/40 px-2 py-0.5 rounded cursor-pointer transition-colors"
+              >
+                @{u}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Secondary Action Buttons */}
+        <motion.div
+          className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center"
           variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
         >
           <motion.div
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
+            className="w-full sm:w-auto"
           >
             <Link
               href="/feed"
-              className="flex items-center justify-center gap-2 bg-gh-blue text-white font-semibold px-6 py-3 rounded-md hover:bg-blue-600 transition-colors w-full sm:w-auto shadow-lg shadow-blue-500/10"
+              className="flex items-center justify-center gap-2 bg-gh-surface hover:bg-gh-surface2 border border-gh-border text-neutral-200 font-semibold px-6 py-3 rounded-md transition-colors w-full sm:w-auto"
             >
-              <span>Explore Feed</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Explore Public Feed</span>
+              <ArrowRight className="w-4 h-4 text-gh-muted" />
             </Link>
           </motion.div>
-
-          <motion.button
-            onClick={handleDemoLogin}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-            className="flex items-center justify-center gap-2 bg-gh-surface2 text-white font-semibold px-6 py-3 rounded-md hover:bg-[#30363d] border border-gh-border transition-colors w-full sm:w-auto"
-          >
-            <UserCheck className="w-4 h-4 text-gh-purple" />
-            <span>Demo Login (@arnavryie)</span>
-          </motion.button>
 
           <motion.button
             onClick={handleGitHubLogin}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
-            className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-6 py-3 rounded-md hover:bg-gray-200 transition-colors w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-6 py-3 rounded-md hover:bg-gray-200 transition-colors w-full sm:w-auto cursor-pointer"
           >
             <GithubIcon className="w-4 h-4" />
             <span>Sign in with GitHub</span>

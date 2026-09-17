@@ -3,7 +3,12 @@ import GitHub from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
 
 export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "development-secret-key-git-wit-project-ronin-2026",
   trustHost: true,
+  pages: {
+    signIn: "/",
+    error: "/",
+  },
   providers: [
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID || "mock-client-id",
