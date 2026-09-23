@@ -17,6 +17,7 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<Tab>('feed');
   const [bookmarks, setBookmarks] = useState<Repo[]>([FALLBACK_REPOS[0]]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [dossierUsername, setDossierUsername] = useState('arnavryie');
 
   const handleToggleBookmark = (repo: Repo) => {
     setBookmarks((prev) => {
@@ -27,6 +28,11 @@ export default function App() {
         return [...prev, repo];
       }
     });
+  };
+
+  const handleNavigateToDossier = (username: string) => {
+    setDossierUsername(username);
+    setCurrentTab('dossier');
   };
 
   return (
@@ -44,9 +50,10 @@ export default function App() {
             bookmarks={bookmarks}
             onToggleBookmark={handleToggleBookmark}
             searchQuery={searchQuery}
+            onNavigateToDossier={handleNavigateToDossier}
           />
         )}
-        {currentTab === 'dossier' && <DossierScreen />}
+        {currentTab === 'dossier' && <DossierScreen initialUsername={dossierUsername} />}
         {currentTab === 'communities' && (
           <CommunitiesScreen
             bookmarks={bookmarks}

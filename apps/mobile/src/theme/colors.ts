@@ -1,4 +1,4 @@
-// Project Ronin - Exact GitHub Design System Palette
+// git-wit - Exact GitHub Design System Palette
 export const colors = {
   bg: '#0d1117',
   surface: '#161b22',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Image } from 'react-native';
 import { Sparkles, Flame, Users, TrendingUp, ChevronRight, Zap } from 'lucide-react-native';
+import { UserLookupCard } from '../components/UserLookupCard';
 import { RepoCard } from '../components/RepoCard';
 import { AISummaryModal } from '../components/AISummaryModal';
 import { Repo, AISummary } from '../types';
@@ -19,9 +20,10 @@ interface FeedScreenProps {
   bookmarks: Repo[];
   onToggleBookmark: (repo: Repo) => void;
   searchQuery?: string;
+  onNavigateToDossier?: (username: string) => void;
 }
 
-export const FeedScreen: React.FC<FeedScreenProps> = ({ bookmarks, onToggleBookmark, searchQuery = '' }) => {
+export const FeedScreen: React.FC<FeedScreenProps> = ({ bookmarks, onToggleBookmark, searchQuery = '', onNavigateToDossier }) => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [feedTab, setFeedTab] = useState<'trending' | 'vector_ai'>('trending');
   const [repos, setRepos] = useState<Repo[]>(FALLBACK_REPOS);
@@ -85,6 +87,9 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ bookmarks, onToggleBookm
 
   const renderHeader = () => (
     <View style={styles.headerArea}>
+      {/* Live GitHub Profile & AI TL;DR Inspector (mirrors website) */}
+      <UserLookupCard onNavigateToDossier={onNavigateToDossier} />
+
       {/* Sub Tab Switcher: Trending vs MongoDB Vector Search */}
       <View style={styles.tabSwitcher}>
         <TouchableOpacity
@@ -154,7 +159,11 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ bookmarks, onToggleBookm
                 {dev.bio}
               </Text>
             </View>
-            <TouchableOpacity style={styles.viewBtn} activeOpacity={0.7}>
+            <TouchableOpacity
+              style={styles.viewBtn}
+              activeOpacity={0.7}
+              onPress={() => onNavigateToDossier?.(dev.username)}
+            >
               <Text style={styles.viewBtnText}>View</Text>
             </TouchableOpacity>
           </View>

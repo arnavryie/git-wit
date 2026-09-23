@@ -6,22 +6,32 @@ import { DeveloperDossier } from '../types';
 import { fetchDeveloperDossier } from '../services/api';
 import { colors } from '../theme/colors';
 
-export const DossierScreen: React.FC = () => {
-  const [usernameInput, setUsernameInput] = useState('arnavryie');
+interface DossierScreenProps {
+  initialUsername?: string;
+}
+
+const PRESET_USERS = ['arnavryie', 'torvalds', 'shadcn', 'antfu', 'gaearon'];
+
+export const DossierScreen: React.FC<DossierScreenProps> = ({ initialUsername = 'arnavryie' }) => {
+  const [usernameInput, setUsernameInput] = useState(initialUsername);
   const [dossier, setDossier] = useState<DeveloperDossier | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleGenerate = async () => {
-    if (!usernameInput.trim()) return;
+  const handleGenerate = async (targetUser?: string) => {
+    const userToFetch = (targetUser || usernameInput).trim().replace(/^@/, '');
+    if (!userToFetch) return;
     setLoading(true);
-    const result = await fetchDeveloperDossier(usernameInput.trim());
+    const result = await fetchDeveloperDossier(userToFetch);
     setDossier(result);
     setLoading(false);
   };
 
   React.useEffect(() => {
-    handleGenerate();
-  }, []);
+    if (initialUsername) {
+      setUsernameInput(initialUsername);
+      handleGenerate(initialUsername);
+    }
+  }, [initialUsername]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -37,6 +47,29 @@ export const DossierScreen: React.FC = () => {
         </Text>
       </View>
 
+      {/* Preset Chips */}
+      <View style={styles.presetsRow}>
+        <Text style={styles.presetsLabel}>Try:</Text>
+        {PRESET_USERS.map((user) => {
+          const isSelected = usernameInput.toLowerCase().replace(/^@/, '') === user.toLowerCase();
+          return (
+            <TouchableOpacity
+              key={user}
+              style={[styles.presetChip, isSelected && styles.presetChipActive]}
+              onPress={() => {
+                setUsernameInput(user);
+                handleGenerate(user);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.presetText, isSelected && styles.presetTextActive]}>
+                @{user}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
       {/* Input Search Row */}
       <View style={styles.searchBox}>
         <Search size={15} color={colors.textMuted} style={styles.searchIcon} />
@@ -46,12 +79,13 @@ export const DossierScreen: React.FC = () => {
           placeholderTextColor={colors.textMuted}
           value={usernameInput}
           onChangeText={setUsernameInput}
+          onSubmitEditing={() => handleGenerate()}
           autoCapitalize="none"
           autoCorrect={false}
         />
         <TouchableOpacity
           style={styles.generateBtn}
-          onPress={handleGenerate}
+          onPress={() => handleGenerate()}
           activeOpacity={0.8}
         >
           <Text style={styles.generateBtnText}>Analyze</Text>
@@ -108,6 +142,40 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 12,
     lineHeight: 16,
+  },
+  presetsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  presetsLabel: {
+    color: colors.textMuted,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  presetChip: {
+    backgroundColor: '#1c1533',
+    borderWidth: 1,
+    borderColor: '#6366f130',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  presetChipActive: {
+    backgroundColor: colors.purple,
+    borderColor: colors.purpleBright,
+  },
+  presetText: {
+    color: '#c4b5fd',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  presetTextActive: {
+    color: '#ffffff',
+    fontWeight: '800',
   },
   searchBox: {
     flexDirection: 'row',

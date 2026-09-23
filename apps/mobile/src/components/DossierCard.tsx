@@ -12,7 +12,7 @@ export const DossierCard: React.FC<DossierCardProps> = ({ dossier }) => {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `⚔️ My Developer Dossier on Project Ronin:\n\n⚡ Archetype: ${dossier.archetype}\n✨ Superpower: ${dossier.superpower}\n\nGenerated with Gemini AI!`,
+        message: `⚔️ My Developer Dossier on git-wit:\n\n⚡ Archetype: ${dossier.archetype}\n✨ Superpower: ${dossier.superpower}\n\nGenerated with Gemini AI on git-wit!`,
       });
     } catch {}
   };

@@ -1,0 +1,26 @@
+{
+  "name": "git-wit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "git-wit: The AI social layer GitHub never built (Next.js Web + React Native Android)",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:all": "node scripts/dev.js",
+    "dev:web": "npm --prefix apps/frontend run dev",
+    "dev:android": "npm --prefix apps/mobile run android",
+    "dev:mobile": "npm --prefix apps/mobile run start",
+    "build:web": "npm --prefix apps/frontend run build",
+    "typecheck": "npm --prefix apps/frontend run dev:check 2>/dev/null || (cd apps/frontend && npx tsc --noEmit) && (cd apps/mobile && npx tsc --noEmit)"
+  },
+  "keywords": [
+    "git-wit",
+    "github",
+    "developer-social",
+    "ai-dossier",
+    "android",
+    "react-native",
+    "nextjs"
+  ],
+  "author": "arnavryie",
+  "license": "MIT"
+}

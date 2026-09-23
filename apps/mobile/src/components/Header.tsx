@@ -22,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
       <View style={styles.topRow}>
         <View style={styles.brandRow}>
           <Text style={styles.brandIcon}>⚔️</Text>
-          <Text style={styles.brandTitle}>Project Ronin</Text>
+          <Text style={styles.brandTitle}>git-wit</Text>
         </View>
 
         <View style={styles.actions}>
