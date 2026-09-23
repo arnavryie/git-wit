@@ -11,7 +11,7 @@ export default function ProfileRedirect() {
   useEffect(() => {
     let target = (session?.user as any)?.login || session?.user?.name;
     if (!target && typeof window !== "undefined") {
-      target = localStorage.getItem("ronin_active_user");
+      target = localStorage.getItem("gitwit_active_user") || localStorage.getItem("ronin_active_user");
     }
     router.replace(`/profile/${target || "arnavryie"}`);
   }, [session, router]);

@@ -104,15 +104,15 @@ export default function RepoCard({ repo, userSkills = [] }: RepoCardProps) {
         } else {
           saved = saved.filter((b: any) => b.repo_full_name !== `${repo.owner}/${repo.name}`)
         }
+        localStorage.setItem("gitwit_bookmarks", JSON.stringify(saved))
         localStorage.setItem("ronin_bookmarks", JSON.stringify(saved))
       } catch {}
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api"
     const userId = session?.user?.email || "anonymous"
     try {
       if (newState) {
-        await fetch(`${apiUrl}/bookmarks`, {
+        await fetch("/api/bookmarks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -122,7 +122,7 @@ export default function RepoCard({ repo, userSkills = [] }: RepoCardProps) {
           })
         })
       } else {
-        await fetch(`${apiUrl}/bookmarks/${encodeURIComponent(userId)}/${repo.owner}/${repo.name}`, {
+        await fetch(`/api/bookmarks/${encodeURIComponent(userId)}/${repo.owner}/${repo.name}`, {
           method: "DELETE"
         })
       }

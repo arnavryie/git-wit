@@ -18,7 +18,7 @@ export default function TopNav() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ronin_active_user');
+      const saved = localStorage.getItem('gitwit_active_user') || localStorage.getItem('ronin_active_user');
       if (saved) {
         setActiveUser(saved);
       } else if (session?.user) {
@@ -69,6 +69,7 @@ export default function TopNav() {
     if (!clean) return;
     setActiveUser(clean);
     if (typeof window !== 'undefined') {
+      localStorage.setItem('gitwit_active_user', clean);
       localStorage.setItem('ronin_active_user', clean);
     }
     setShowSwitchModal(false);
@@ -87,7 +88,7 @@ export default function TopNav() {
         <div className="flex items-center gap-3">
           <Link href="/feed" className="flex items-center gap-2 text-white font-semibold">
             <span className="text-xl">⚔️</span>
-            <span className="hidden sm:inline tracking-tight font-bold">Project Ronin</span>
+            <span className="hidden sm:inline tracking-tight font-bold">git-wit</span>
           </Link>
         </div>
 

@@ -21,7 +21,7 @@ const FEATURED_BUILDERS: Builder[] = [
     username: "arnavryie",
     displayName: "Arnav Ryie",
     avatar: "https://github.com/arnavryie.png",
-    bio: "Full-stack builder & creator of Project Ronin. Developing modern open-source devtools.",
+    bio: "Full-stack builder & creator of git-wit. Developing modern open-source devtools.",
     location: "Global",
     followers: 1420,
   },
@@ -81,11 +81,11 @@ export default function FollowingPage() {
     let localFollows: string[] = [];
     if (typeof window !== "undefined") {
       try {
-        localFollows = JSON.parse(localStorage.getItem("ronin_following") || "[]");
+        localFollows = JSON.parse(localStorage.getItem("gitwit_following") || localStorage.getItem("ronin_following") || "[]");
       } catch {}
     }
 
-    const currentActive = session?.user?.name || (typeof window !== "undefined" ? localStorage.getItem("ronin_active_user") : null) || "guest";
+    const currentActive = session?.user?.name || (typeof window !== "undefined" ? (localStorage.getItem("gitwit_active_user") || localStorage.getItem("ronin_active_user")) : null) || "guest";
 
     fetch(`/api/following/${currentActive}`)
       .then((r) => r.json())

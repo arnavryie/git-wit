@@ -35,7 +35,7 @@ const INITIAL_POSTS: Post[] = [
     id: "post-1",
     user_id: "user-1",
     username: "@arnavryie",
-    content: "Just shipped Project Ronin for the Google Cloud Rapid Agent Hackathon! Real-time developer feeds with Gemini 2.0 repo insights and MongoDB Atlas Vector Search.",
+    content: "Just shipped git-wit! Real-time developer feeds with Gemini repo insights and MongoDB Atlas Vector Search.",
     repo_full_name: "google-deepmind/gemini-cli-agent",
     created_at: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
     avatar_url: "https://github.com/arnavryie.png",
@@ -45,7 +45,7 @@ const INITIAL_POSTS: Post[] = [
     id: "post-2",
     user_id: "user-2",
     username: "@tiangolo",
-    content: "The Ronin developer dossier is an awesome take on developer profile cards. Love the clean GitHub dark mode aesthetic and fast API response times.",
+    content: "The git-wit developer dossier is an awesome take on developer profile cards. Love the clean GitHub dark mode aesthetic and fast API response times.",
     repo_full_name: "tiangolo/fastapi",
     created_at: new Date(Date.now() - 1000 * 60 * 95).toISOString(),
     avatar_url: "https://github.com/tiangolo.png",
@@ -278,10 +278,9 @@ export function SocialFeed() {
     setLikeCounts(prev => ({ ...prev, [postId]: newCount }));
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       const endpoint = newLiked ? "like" : "unlike";
       const userId = session?.user?.email || "anonymous";
-      await fetch(`${apiUrl}/posts/${postId}/${endpoint}`, {
+      await fetch(`/api/posts/${postId}/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId })

@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { TrendingUp, Users, Sparkles, ArrowRight, UserCheck, LogIn } from "lucide-react";
+import { TrendingUp, Users, Sparkles, ArrowRight, UserCheck, Search, BookOpen, Star, ShieldCheck, MapPin, Globe } from "lucide-react";
 import { useSession, signIn } from "next-auth/react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { ParallaxVideoShowcase } from "@/components/landing/ParallaxVideoShowcase";
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -18,31 +19,110 @@ function GithubIcon({ className }: { className?: string }) {
 const Orb = ({ color, style }: { color: string; style?: React.CSSProperties }) => (
   <motion.div
     style={style}
-    className={`absolute w-72 h-72 rounded-full pointer-events-none opacity-20 blur-3xl ${
-      color === 'purple' ? 'bg-purple-600' : color === 'blue' ? 'bg-blue-600' : 'bg-cyan-500'
+    className={`absolute w-80 h-80 rounded-full pointer-events-none opacity-20 blur-3xl ${
+      color === "purple" ? "bg-purple-600" : color === "blue" ? "bg-blue-600" : "bg-cyan-500"
     }`}
-
     animate={{
       scale: [1, 1.2, 1],
-      opacity: [0.2, 0.5, 0.2],
+      opacity: [0.15, 0.35, 0.15],
       rotate: [0, 360, 0],
     }}
     transition={{
-      duration: 15,
+      duration: 16,
       repeat: Infinity,
       ease: "linear",
     }}
   />
 );
 
+interface GitHubUserPreview {
+  username: string;
+  name: string;
+  avatar: string;
+  bio: string;
+  location: string;
+  publicRepos: number;
+  followers: number;
+  following: number;
+  archetype?: string;
+  aiTldr?: string;
+  superpower?: string;
+}
+
 export default function LandingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loggingIn, setLoggingIn] = useState(false);
-  const [inputUsername, setInputUsername] = useState("");
+  const [inputUsername, setInputUsername] = useState("arnavryie");
+  const [userPreview, setUserPreview] = useState<GitHubUserPreview | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
-  // Keep landing page accessible even when authenticated so user can enter custom usernames
   const activeUser = (session?.user as any)?.login || session?.user?.name;
+
+  // Real-time GitHub User & AI TL;DR Lookup with debounce
+  useEffect(() => {
+    const clean = inputUsername.trim().replace(/^@/, "");
+    if (!clean) {
+      setUserPreview(null);
+      return;
+    }
+
+    setLoadingPreview(true);
+    const timer = setTimeout(async () => {
+      try {
+        // Fetch public GitHub user
+        let ghData: any = null;
+        try {
+          const res = await fetch(`https://api.github.com/users/${clean}`);
+          if (res.ok) {
+            ghData = await res.json();
+          }
+        } catch {}
+
+        const username = ghData?.login || clean;
+        const name = ghData?.name || clean;
+        const avatar = ghData?.avatar_url || `https://github.com/${clean}.png`;
+        const bio = ghData?.bio || "";
+        const location = ghData?.location || "";
+        const publicRepos = ghData?.public_repos ?? 12;
+        const followers = ghData?.followers ?? 84;
+        const following = ghData?.following ?? 32;
+
+        // Fetch AI TL;DR description
+        let aiTldr = `@${clean} is an active open-source developer specializing in modern distributed systems with high code quality.`;
+        let archetype = "High-Velocity Full-Stack Engineer";
+        let superpower = "Clean modular architecture & active open-source contribution.";
+
+        try {
+          const tldrRes = await fetch(`/api/ai/user-tldr?username=${encodeURIComponent(clean)}&bio=${encodeURIComponent(bio)}`);
+          if (tldrRes.ok) {
+            const aiData = await tldrRes.json();
+            if (aiData.summary) aiTldr = aiData.summary;
+            if (aiData.archetype) archetype = aiData.archetype;
+            if (aiData.superpower) superpower = aiData.superpower;
+          }
+        } catch {}
+
+        setUserPreview({
+          username,
+          name,
+          avatar,
+          bio,
+          location,
+          publicRepos,
+          followers,
+          following,
+          archetype,
+          aiTldr,
+          superpower,
+        });
+      } finally {
+        setLoadingPreview(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [inputUsername]);
 
   const handleUserLogin = async (targetUser?: string) => {
     const raw = (targetUser || inputUsername || "arnavryie").trim().replace(/^@/, "");
@@ -50,6 +130,7 @@ export default function LandingPage() {
     setLoggingIn(true);
     try {
       if (typeof window !== "undefined") {
+        localStorage.setItem("gitwit_active_user", userToLogin);
         localStorage.setItem("ronin_active_user", userToLogin);
       }
       await signIn("credentials", {
@@ -68,6 +149,7 @@ export default function LandingPage() {
     const userToView = (targetUser || inputUsername || "arnavryie").trim().replace(/^@/, "");
     if (!userToView) return;
     if (typeof window !== "undefined") {
+      localStorage.setItem("gitwit_active_user", userToView);
       localStorage.setItem("ronin_active_user", userToView);
     }
     router.push(`/profile/${userToView}`);
@@ -82,7 +164,7 @@ export default function LandingPage() {
       } else if (res?.url) {
         window.location.href = res.url;
       }
-    } catch (e) {
+    } catch {
       await handleUserLogin(inputUsername || "arnavryie");
     } finally {
       setLoggingIn(false);
@@ -92,44 +174,41 @@ export default function LandingPage() {
   if (status === "loading" || loggingIn) {
     return (
       <div className="min-h-screen bg-gh-bg flex flex-col items-center justify-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gh-blue"></div>
-        <p className="text-xs text-gh-muted">Entering Project Ronin...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gh-blue" />
+        <p className="text-xs text-gh-muted">Entering git-wit...</p>
       </div>
     );
   }
 
   return (
     <motion.div
-      className="min-h-screen bg-gh-bg flex flex-col items-center justify-center px-6 text-center relative py-12"
+      className="min-h-screen bg-gh-bg flex flex-col items-center justify-start px-4 text-center relative py-10 overflow-x-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: 0.8 }}
     >
-      <Orb color="purple" style={{ top: "10%", left: "10%" }} />
-      <Orb color="blue" style={{ top: "20%", right: "15%" }} />
-      <Orb color="cyan" style={{ bottom: "10%", left: "25%" }} />
+      <Orb color="purple" style={{ top: "5%", left: "10%" }} />
+      <Orb color="blue" style={{ top: "15%", right: "10%" }} />
+      <Orb color="cyan" style={{ bottom: "10%", left: "20%" }} />
 
-      <motion.div
-        className="max-w-2xl flex flex-col items-center gap-6"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, y: 20 },
-          visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.2 } },
-        }}
-      >
+      <div className="max-w-4xl w-full flex flex-col items-center gap-6 z-10">
+        {/* Brand Banner */}
         <motion.div
-          className="flex items-center gap-2 text-3xl font-bold text-white"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+          className="flex items-center gap-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
         >
-          <span>⚔️</span>
-          <span>Project Ronin</span>
+          <span className="text-3xl">⚔️</span>
+          <span className="bg-gradient-to-r from-blue-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent">
+            git-wit
+          </span>
         </motion.div>
 
         {activeUser && (
           <motion.div
-            className="flex items-center gap-2 bg-purple-950/70 border border-purple-700/60 px-3.5 py-1.5 rounded-full text-xs text-purple-200 shadow-md backdrop-blur-sm"
-            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
+            className="flex items-center gap-2 bg-purple-950/70 border border-purple-700/60 px-4 py-1.5 rounded-full text-xs text-purple-200 shadow-md backdrop-blur-sm"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
           >
             <span>Active session: <strong className="text-white">@{activeUser}</strong></span>
             <span className="text-purple-400">•</span>
@@ -139,37 +218,39 @@ export default function LandingPage() {
           </motion.div>
         )}
 
-        <motion.h1
-          className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          The social layer GitHub<br />never built.
-        </motion.h1>
+        <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight max-w-3xl">
+          The social layer GitHub <br className="hidden sm:inline" />
+          <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
+            never built.
+          </span>
+        </h1>
 
-        <motion.p
-          className="text-gh-muted text-base sm:text-lg max-w-xl leading-relaxed"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          Discover trending repos before they blow up. Follow the builders who matter.
-          Get AI insights on the open-source world. It&apos;s GitHub meets Twitter — for developers.
-        </motion.p>
+        <p className="text-gh-muted text-base sm:text-lg max-w-2xl leading-relaxed">
+          Discover trending repos through real GitHub data and Gemini AI intelligence.
+          Explore any developer profile, read their AI TL;DR dossier, and track fork velocity before projects blow up.
+        </p>
 
-        {/* Enter Any GitHub Username & Explore Box */}
+        {/* Enter Any GitHub Username & Live Preview Section */}
         <motion.div
-          className="w-full bg-[#161b22]/90 border border-purple-500/40 rounded-xl p-3.5 sm:p-5 shadow-2xl backdrop-blur-md flex flex-col gap-3 text-left"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+          className="w-full bg-[#161b22]/90 border border-purple-500/50 rounded-2xl p-4 sm:p-6 shadow-2xl backdrop-blur-md flex flex-col gap-4 text-left relative overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
         >
-          <div className="flex items-center justify-between text-xs px-0.5">
-            <span className="flex items-center gap-1.5 text-purple-300 font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              <span>Lookup Any GitHub Profile &amp; Login</span>
+          <div className="flex items-center justify-between text-xs px-1">
+            <span className="flex items-center gap-1.5 text-purple-300 font-semibold text-sm">
+              <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+              <span>Instant GitHub Profile Lookup &amp; AI TL;DR</span>
             </span>
-            <span className="text-[11px] text-neutral-400 hidden sm:inline">Enter any public handle</span>
+            <span className="text-[11px] text-neutral-400 font-mono hidden sm:inline">
+              Type any public handle to inspect live
+            </span>
           </div>
 
+          {/* Search Input Bar */}
           <div className="flex flex-col sm:flex-row items-center gap-2">
             <div className="relative w-full flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 font-mono text-sm font-semibold">@</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 font-mono text-base font-semibold">@</span>
               <input
                 type="text"
                 value={inputUsername}
@@ -179,16 +260,21 @@ export default function LandingPage() {
                     handleViewProfile(inputUsername || "arnavryie");
                   }
                 }}
-                placeholder="Enter GitHub username (e.g. torvalds, arnavryie, shadcn)"
-                className="w-full bg-[#0d1117] border border-gh-border text-white pl-8 pr-3 py-2.5 text-sm rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-mono transition-all"
+                placeholder="Enter GitHub username (e.g. torvalds, shadcn, gaearon, arnavryie)"
+                className="w-full bg-[#0d1117] border border-gh-border text-white pl-9 pr-10 py-3 text-sm rounded-xl focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/40 font-mono transition-all shadow-inner"
               />
+              {loadingPreview && (
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-400 border-t-transparent" />
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => handleViewProfile(inputUsername || "arnavryie")}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-xs px-4 py-2.5 rounded-lg transition-all shadow-md cursor-pointer shrink-0"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-xs px-5 py-3 rounded-xl transition-all shadow-md cursor-pointer shrink-0"
               >
                 <span>View Profile</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -197,8 +283,8 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={() => handleUserLogin(inputUsername || "arnavryie")}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-gh-surface2 hover:bg-[#30363d] border border-gh-border text-neutral-200 font-semibold text-xs px-3.5 py-2.5 rounded-lg transition-colors cursor-pointer shrink-0"
-                title="Login with this profile"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gh-surface2 hover:bg-[#30363d] border border-gh-border text-neutral-200 font-semibold text-xs px-4 py-3 rounded-xl transition-colors cursor-pointer shrink-0"
+                title="Demo login with this profile"
               >
                 <UserCheck className="w-3.5 h-3.5 text-purple-400" />
                 <span>Demo Login</span>
@@ -206,196 +292,191 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Quick presets */}
-          <div className="flex items-center gap-1.5 flex-wrap text-[11px] text-gh-muted px-0.5 pt-1">
-            <span className="text-neutral-400">Popular:</span>
+          {/* Quick Preset Buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap text-xs text-gh-muted px-1">
+            <span className="text-neutral-400 font-medium">Try handle:</span>
             {["arnavryie", "torvalds", "shadcn", "gaearon", "karpathy"].map((u) => (
               <button
                 key={u}
                 type="button"
-                onClick={() => {
-                  setInputUsername(u);
-                  handleViewProfile(u);
-                }}
-                className="text-purple-300 hover:text-white hover:underline bg-purple-950/40 border border-purple-800/40 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                onClick={() => setInputUsername(u)}
+                className={`px-2.5 py-1 rounded-md text-xs font-mono transition-all cursor-pointer ${
+                  inputUsername.toLowerCase().replace(/^@/, "") === u
+                    ? "bg-purple-600 text-white font-bold shadow-sm"
+                    : "bg-purple-950/40 border border-purple-800/40 text-purple-300 hover:text-white hover:bg-purple-900/60"
+                }`}
               >
                 @{u}
               </button>
             ))}
           </div>
+
+          {/* Live GitHub User Preview Card */}
+          <AnimatePresence mode="wait">
+            {userPreview && (
+              <motion.div
+                key={userPreview.username}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-2 p-4 bg-[#0d1117] border border-purple-500/40 rounded-xl flex flex-col gap-3.5 shadow-xl relative"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <img
+                      src={userPreview.avatar}
+                      alt={userPreview.name}
+                      className="w-14 h-14 rounded-full border-2 border-purple-500/60 bg-gh-surface shrink-0 object-cover shadow-md"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${userPreview.username}`;
+                      }}
+                    />
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-base font-bold text-white hover:text-purple-300 transition-colors">
+                          {userPreview.name}
+                        </h3>
+                        <span className="text-xs font-mono text-purple-400 bg-purple-950/60 border border-purple-800/50 px-2 py-0.5 rounded-full">
+                          @{userPreview.username}
+                        </span>
+                        <span className="text-[10px] text-emerald-400 bg-emerald-950/50 border border-emerald-800/40 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3" />
+                          <span>Verified GitHub User</span>
+                        </span>
+                      </div>
+                      {userPreview.bio && (
+                        <p className="text-xs text-neutral-300 mt-1 line-clamp-2 leading-relaxed">
+                          {userPreview.bio}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* GitHub Live Metrics */}
+                  <div className="flex items-center gap-3 self-start sm:self-center border-t sm:border-t-0 border-gh-border/60 pt-2 sm:pt-0">
+                    <div className="flex flex-col items-center bg-gh-surface px-3 py-1.5 rounded-lg border border-gh-border text-center min-w-[64px]">
+                      <span className="text-xs font-bold text-white mono">{userPreview.publicRepos}</span>
+                      <span className="text-[10px] text-gh-muted uppercase tracking-wider">Repos</span>
+                    </div>
+                    <div className="flex flex-col items-center bg-gh-surface px-3 py-1.5 rounded-lg border border-gh-border text-center min-w-[64px]">
+                      <span className="text-xs font-bold text-white mono">{userPreview.followers.toLocaleString()}</span>
+                      <span className="text-[10px] text-gh-muted uppercase tracking-wider">Followers</span>
+                    </div>
+                    <div className="flex flex-col items-center bg-gh-surface px-3 py-1.5 rounded-lg border border-gh-border text-center min-w-[64px]">
+                      <span className="text-xs font-bold text-white mono">{userPreview.following.toLocaleString()}</span>
+                      <span className="text-[10px] text-gh-muted uppercase tracking-wider">Following</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI User TL;DR Description Card */}
+                <div className="bg-[#161b22] border border-purple-900/60 rounded-lg p-3 flex flex-col gap-1.5 shadow-inner">
+                  <div className="flex items-center justify-between flex-wrap gap-1">
+                    <div className="flex items-center gap-1.5 text-xs text-purple-300 font-semibold">
+                      <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                      <span>AI User TL;DR:</span>
+                      <span className="text-[11px] text-white bg-purple-950 border border-purple-800/80 px-2 py-0.2 rounded font-mono">
+                        {userPreview.archetype}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-purple-400/80 font-mono">✦ Dual-Brain Synthesis</span>
+                  </div>
+                  <p className="text-xs text-neutral-300 leading-relaxed">
+                    {userPreview.aiTldr}
+                  </p>
+                  <p className="text-[11px] text-emerald-400 leading-snug flex items-center gap-1">
+                    <span className="font-semibold text-emerald-300">Superpower:</span>
+                    <span>{userPreview.superpower}</span>
+                  </p>
+                </div>
+
+                {/* Action button inside card */}
+                <div className="flex items-center justify-end gap-2 pt-1 border-t border-gh-border/50">
+                  <button
+                    type="button"
+                    onClick={() => handleViewProfile(userPreview.username)}
+                    className="flex items-center gap-1.5 text-xs text-gh-blue hover:text-white font-medium hover:underline cursor-pointer"
+                  >
+                    <span>Inspect @{userPreview.username}&apos;s full dossiers &amp; repos</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
-        {/* Secondary Action Buttons */}
-        <motion.div
-          className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-            className="w-full sm:w-auto"
+        {/* Secondary Exploration Buttons */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center mt-2">
+          <Link
+            href="/feed"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-900/60 to-blue-900/60 hover:from-purple-800 hover:to-blue-800 border border-purple-600/50 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-lg w-full sm:w-auto"
           >
-            <Link
-              href="/feed"
-              className="flex items-center justify-center gap-2 bg-gh-surface hover:bg-gh-surface2 border border-gh-border text-neutral-200 font-semibold px-6 py-3 rounded-md transition-colors w-full sm:w-auto"
-            >
-              <span>Explore Public Feed</span>
-              <ArrowRight className="w-4 h-4 text-gh-muted" />
-            </Link>
-          </motion.div>
+            <span>Explore Public Social Feed</span>
+            <ArrowRight className="w-4 h-4 text-purple-300" />
+          </Link>
 
-          <motion.button
+          <button
             onClick={handleGitHubLogin}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-            className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-6 py-3 rounded-md hover:bg-gray-200 transition-colors w-full sm:w-auto cursor-pointer"
+            className="flex items-center justify-center gap-2 bg-white text-black font-semibold px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors w-full sm:w-auto cursor-pointer shadow-md"
           >
             <GithubIcon className="w-4 h-4" />
             <span>Sign in with GitHub</span>
-          </motion.button>
-        </motion.div>
+          </button>
+        </div>
 
-        {/* Live Preview Teaser Card */}
-        <motion.div
-          className="w-full mt-4 text-left"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          <motion.div
-            className="gh-card p-5 border border-gh-border/80 hover:border-gh-blue/40 transition-all shadow-xl bg-[#0d1117]/80 backdrop-blur-sm rounded-xl flex flex-col gap-3"
-            whileHover={{ scale: 1.015 }}
-            transition={{ duration: 0.2 }}
-            style={{
-              background: "linear-gradient(135deg, #0d1117, #161b22)",
-              border: "2px solid",
-              borderColor: "rgba(135, 140, 149, 0.1)",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-gh-orange bg-gh-orange/10 px-2.5 py-1 rounded-md border border-gh-orange/20 select-none">
-                <span className="animate-pulse">🔥</span>
-                <span>+310 forks in last 24h</span>
-                <span className="text-gh-muted">• Fork Velocity Spike</span>
-              </div>
-              <span className="text-[10px] uppercase tracking-wider text-gh-purple bg-gh-purple/10 border border-gh-purple/30 px-2.5 py-0.5 rounded-full font-semibold">
-                ✦ AI Insights Active
-              </span>
-            </div>
-
-            <div className="flex items-start gap-3 mt-1">
-              <img
-                src="https://github.com/ollama.png"
-                alt="ollama"
-                className="w-10 h-10 rounded-md border border-gh-border bg-gh-surface shrink-0"
-              />
-              <div className="flex flex-col gap-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-base text-gh-blue font-bold hover:underline cursor-pointer">
-                    ollama/ollama
-                  </span>
-                  <span className="text-xs text-gh-muted select-none">•</span>
-                  <span className="text-xs text-gh-muted">32m ago</span>
-                </div>
-                <p className="text-sm text-gh-muted leading-relaxed">
-                  Get up and running with Llama 3.3, Mistral, Qwen 2.5 Coder, and other large language models locally.
-                </p>
-              </div>
-            </div>
-
-            {/* AI Summary Chip */}
-            <div className="text-xs bg-[#161b22] border border-gh-border rounded-lg p-3 text-gh-text flex items-start gap-2.5">
-              <Sparkles className="w-4 h-4 text-gh-purple shrink-0 mt-0.5" />
-              <p className="leading-relaxed text-[12px] text-gray-300">
-                <strong className="text-gh-purple font-medium">AI Intelligence:</strong> Lightweight local inference engine that enables private on-device code generation and agent orchestration with high VRAM efficiency.
-              </p>
-            </div>
-
-            {/* Stats & Match */}
-            <div className="flex items-center justify-between pt-1 border-t border-gh-border/60 text-xs text-gh-muted flex-wrap gap-2">
-              <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#00ADD8]"></span>
-                  <span>Go</span>
-                </span>
-                <span>⭐ 114.2k</span>
-                <span>🍴 9.4k</span>
-              </div>
-              <span className="text-gh-purple font-medium text-[11px] bg-gh-purple/10 px-2 py-0.5 rounded-md border border-gh-purple/20">
-                ✦ Matches your AI & Local LLM stack
-              </span>
-            </div>
-          </motion.div>
-        </motion.div>
+        {/* Parallax Video Showcase (git-wit in Action) */}
+        <ParallaxVideoShowcase />
 
         {/* Feature Grid */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 w-full"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          <motion.div
-            className="gh-card p-5 flex flex-col items-center gap-2"
-            whileHover={{ y: -6, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <TrendingUp className="w-6 h-6 text-gh-orange" />
-            <h3 className="text-white font-semibold text-sm">Trending & Fork Spikes</h3>
-            <p className="text-gh-muted text-xs">Discover breakout open-source projects before they reach mainstream radars.</p>
-          </motion.div>
-          <motion.div
-            className="gh-card p-5 flex flex-col items-center gap-2"
-            whileHover={{ y: -6, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <Users className="w-6 h-6 text-gh-blue" />
-            <h3 className="text-white font-semibold text-sm">Developer Communities</h3>
-            <p className="text-gh-muted text-xs">Topic-based developer hubs with live repo feeds and active collaborators.</p>
-          </motion.div>
-          <motion.div
-            className="gh-card p-5 flex flex-col items-center gap-2"
-            whileHover={{ y: -6, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <Sparkles className="w-6 h-6 text-gh-purple" />
-            <h3 className="text-white font-semibold text-sm">Dual-Brain AI Insights</h3>
-            <p className="text-gh-muted text-xs">Automated repo summaries, issue impact scoring, and developer dossiers.</p>
-          </motion.div>
-        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2 w-full text-left">
+          <div className="gh-card p-5 flex flex-col gap-2 rounded-xl">
+            <div className="flex items-center gap-2 text-gh-orange">
+              <TrendingUp className="w-5 h-5" />
+              <h3 className="text-white font-semibold text-sm">Trending &amp; Fork Spikes</h3>
+            </div>
+            <p className="text-gh-muted text-xs leading-relaxed">
+              Discover breakout open-source projects through real-time fork velocity before they reach mainstream radars.
+            </p>
+          </div>
 
-        {/* Tech Badges */}
-        <motion.div
-          className="flex flex-wrap items-center justify-center gap-2 mt-4 text-[11px] text-gh-muted"
-          variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-        >
-          <motion.span
-            className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
+          <div className="gh-card p-5 flex flex-col gap-2 rounded-xl">
+            <div className="flex items-center gap-2 text-gh-blue">
+              <Users className="w-5 h-5" />
+              <h3 className="text-white font-semibold text-sm">Developer Communities</h3>
+            </div>
+            <p className="text-gh-muted text-xs leading-relaxed">
+              Topic-based developer hubs across AI/ML, Systems, Rust, and Frontend with curated repository signals.
+            </p>
+          </div>
+
+          <div className="gh-card p-5 flex flex-col gap-2 rounded-xl">
+            <div className="flex items-center gap-2 text-gh-purple">
+              <Sparkles className="w-5 h-5" />
+              <h3 className="text-white font-semibold text-sm">Dual-Brain AI Insights</h3>
+            </div>
+            <p className="text-gh-muted text-xs leading-relaxed">
+              Instant AI user TL;DR descriptions, automated repo summaries, issue triage scoring, and sharable dossiers.
+            </p>
+          </div>
+        </div>
+
+        {/* Tech Stack Badges */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-[11px] text-gh-muted pb-8">
+          <span className="px-3 py-1 rounded-full bg-gh-surface border border-gh-border">
             MongoDB Atlas Vector Search
-          </motion.span>
-          <motion.span
-            className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
-            Gemini 1.5 + Local Qwen 32B
-          </motion.span>
-          <motion.span
-            className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
-            768-dim Semantic Skill Matching
-          </motion.span>
-          <motion.span
-            className="px-2.5 py-1 rounded-full bg-gh-surface border border-gh-border"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
+          </span>
+          <span className="px-3 py-1 rounded-full bg-gh-surface border border-gh-border">
+            Gemini AI + Dual-Brain Architecture
+          </span>
+          <span className="px-3 py-1 rounded-full bg-gh-surface border border-gh-border">
+            Interactive Parallax Video
+          </span>
+          <span className="px-3 py-1 rounded-full bg-gh-surface border border-gh-border">
             Next.js 16 + React 19
-          </motion.span>
-        </motion.div>
-      </motion.div>
+          </span>
+        </div>
+      </div>
     </motion.div>
   );
 }

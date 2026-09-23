@@ -4,8 +4,21 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const title = searchParams.get("issue") || searchParams.get("issue_title") || "Bug fix or feature request";
   const repo = searchParams.get("repo") || "repository";
+  return NextResponse.json(scoreIssue(repo, title));
+}
 
-  // Deterministic yet intelligent score based on issue complexity indicators
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const title = body.issue || body.issue_title || body.title || "Bug fix or feature request";
+    const repo = body.repo || "repository";
+    return NextResponse.json(scoreIssue(repo, title));
+  } catch {
+    return NextResponse.json(scoreIssue("repository", "Bug fix or feature request"));
+  }
+}
+
+function scoreIssue(repo: string, title: string) {
   let score = 75;
   const lower = title.toLowerCase();
   if (lower.includes("security") || lower.includes("vulnerability") || lower.includes("crash") || lower.includes("memory leak")) {
@@ -27,11 +40,11 @@ export async function GET(req: Request) {
     ? "Meaningful feature enhancement or functional stability improvement."
     : "Documentation, cleanup, or low-risk cosmetic improvement.";
 
-  return NextResponse.json({
+  return {
     repo,
     title,
     score,
     level,
     reason,
-  });
+  };
 }

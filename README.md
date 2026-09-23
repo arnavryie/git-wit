@@ -1,13 +1,13 @@
-# ⚔️ Project Ronin
+# ⚔️ git-wit
 
 > **The social intelligence layer for open-source developers — GitHub meets Twitter.**
 
 Built for the [Google Cloud Rapid Agent Hackathon](https://rapid-agent.devpost.com) — MongoDB Partner Track.
 
-## What is Ronin?
+## What is git-wit?
 
 GitHub's social layer is broken. Developers discover repos through Twitter chaos, 
-not GitHub Explore. Project Ronin is the missing layer — a personalized social 
+not GitHub Explore. git-wit is the missing layer — a personalized social 
 feed for developers powered by real GitHub data and Gemini AI.
 
 - **For You Feed** — trending repos filtered by your actual GitHub language stack

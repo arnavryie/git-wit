@@ -13,8 +13,7 @@ export function PostComposer({ onPostCreated }: { onPostCreated?: () => void }) 
     if (!session || !content.trim()) return
     setIsPosting(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-      await fetch(`${apiUrl}/posts`, {
+      await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

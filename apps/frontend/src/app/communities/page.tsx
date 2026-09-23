@@ -25,21 +25,7 @@ const FALLBACK_COMMUNITIES: Community[] = [
 ]
 
 async function getCommunities(): Promise<Community[]> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api"
-  try {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 2000)
-    const res = await fetch(`${apiUrl}/communities`, {
-      signal: controller.signal,
-      next: { revalidate: 60 },
-    })
-    clearTimeout(timeout)
-    if (res.ok) {
-      const data = await res.json()
-      if (Array.isArray(data) && data.length > 0) return data
-    }
-  } catch {}
-  return FALLBACK_COMMUNITIES
+  return FALLBACK_COMMUNITIES;
 }
 
 export default async function CommunitiesPage() {

@@ -14,7 +14,7 @@ export default function BookmarksPage() {
     let localSaved: any[] = []
     if (typeof window !== "undefined") {
       try {
-        localSaved = JSON.parse(localStorage.getItem("ronin_bookmarks") || "[]")
+        localSaved = JSON.parse(localStorage.getItem("gitwit_bookmarks") || localStorage.getItem("ronin_bookmarks") || "[]")
       } catch {}
     }
     if (localSaved.length > 0) {
@@ -22,9 +22,8 @@ export default function BookmarksPage() {
       setLoading(false)
       return
     }
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api"
     const userEmail = session?.user?.email || "guest"
-    fetch(`${apiUrl}/bookmarks/${userEmail}`)
+    fetch(`/api/bookmarks/${userEmail}`)
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {

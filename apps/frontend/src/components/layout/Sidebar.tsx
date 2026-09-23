@@ -15,7 +15,7 @@ export default function Sidebar() {
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ronin_active_user');
+      const saved = localStorage.getItem('gitwit_active_user') || localStorage.getItem('ronin_active_user');
       if (saved) {
         setActiveUser(saved);
       } else if (session?.user) {
@@ -87,7 +87,7 @@ export default function Sidebar() {
 
       <div className="px-3">
         <div className="hidden md:block px-2 text-[10px] text-gh-muted">
-          <span>Project Ronin v1.0.0</span>
+          <span>git-wit v1.0.0</span>
         </div>
       </div>
     </aside>

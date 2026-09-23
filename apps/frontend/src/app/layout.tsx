@@ -16,10 +16,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Project Ronin — The social layer for developers",
+  title: "git-wit — The social layer for developers",
   description: "Discover trending repos, follow builders, and get AI insights on the open-source world. GitHub meets Twitter.",
   openGraph: {
-    title: "Project Ronin",
+    title: "git-wit",
     description: "The social intelligence layer for developers. GitHub meets Twitter.",
     type: "website",
   },

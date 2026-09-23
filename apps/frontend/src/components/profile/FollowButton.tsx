@@ -12,7 +12,7 @@ export function FollowButton({ targetUserId, targetUsername }: { targetUserId: s
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = JSON.parse(localStorage.getItem("ronin_following") || "[]")
+        const saved = JSON.parse(localStorage.getItem("gitwit_following") || localStorage.getItem("ronin_following") || "[]")
         if (saved.includes(targetUsername)) {
           setIsFollowing(true)
           return
@@ -21,7 +21,7 @@ export function FollowButton({ targetUserId, targetUsername }: { targetUserId: s
     }
 
     if (session?.user?.email) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "/api"}/following/${session.user.email}`)
+      fetch(`/api/following/${session.user.email}`)
         .then(res => res.json())
         .then(data => {
           if (data.following?.includes(targetUsername)) {
@@ -40,7 +40,7 @@ export function FollowButton({ targetUserId, targetUsername }: { targetUserId: s
     // Save to localStorage
     if (typeof window !== "undefined") {
       try {
-        let saved = JSON.parse(localStorage.getItem("ronin_following") || "[]")
+        let saved = JSON.parse(localStorage.getItem("gitwit_following") || localStorage.getItem("ronin_following") || "[]")
         if (nextState) {
           if (!saved.includes(targetUsername)) saved.push(targetUsername)
           toast.success(`Following @${targetUsername}!`)
@@ -48,6 +48,7 @@ export function FollowButton({ targetUserId, targetUsername }: { targetUserId: s
           saved = saved.filter((u: string) => u !== targetUsername)
           toast(`Unfollowed @${targetUsername}.`)
         }
+        localStorage.setItem("gitwit_following", JSON.stringify(saved))
         localStorage.setItem("ronin_following", JSON.stringify(saved))
       } catch {}
     }
@@ -55,7 +56,7 @@ export function FollowButton({ targetUserId, targetUsername }: { targetUserId: s
     const endpoint = nextState ? "follow" : "unfollow"
     const followerEmail = session?.user?.email || "guest@users.noreply.github.com"
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "/api"}/${endpoint}`, {
+      await fetch(`/api/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

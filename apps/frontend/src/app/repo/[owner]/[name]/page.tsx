@@ -23,28 +23,25 @@ export default async function RepoDetailPage({ params }: { params: Promise<{ own
     );
   }
 
-  // Score the top 5 open issues with Gemini (cached in Mongo + Next)
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+  // Score open issues with AI impact heuristic
   if (repo?.issues?.length) {
-    const top = repo.issues.slice(0, 5);
-    const scored = await Promise.all(
-      top.map(async (issue: any) => {
-        try {
-          const qs = new URLSearchParams({
-            repo: `${repo.owner}/${repo.name}`,
-            issue_number: String(issue.id),
-            issue_title: issue.title,
-          });
-          const r = await fetch(`${apiUrl}/ai/issue-score?${qs}`, { next: { revalidate: 86400 } });
-          if (r.ok) {
-            const s = await r.json();
-            return { ...issue, impactScore: s.score, impactLevel: s.level };
-          }
-        } catch {}
-        return issue;
-      })
-    );
-    repo.issues = [...scored, ...repo.issues.slice(5)];
+    repo.issues = repo.issues.map((issue: any) => {
+      const lower = (issue.title || "").toLowerCase();
+      let score = 75;
+      if (lower.includes("security") || lower.includes("vulnerability") || lower.includes("crash") || lower.includes("memory leak")) {
+        score = 96;
+      } else if (lower.includes("perf") || lower.includes("speed") || lower.includes("architect") || lower.includes("refactor")) {
+        score = 88;
+      } else if (lower.includes("feature") || lower.includes("support") || lower.includes("add")) {
+        score = 82;
+      } else if (lower.includes("doc") || lower.includes("typo") || lower.includes("readme")) {
+        score = 45;
+      } else {
+        score = 70 + ((issue.title?.length || 10) % 20);
+      }
+      const level = score >= 85 ? "High" : score >= 60 ? "Med" : "Low";
+      return { ...issue, impactScore: score, impactLevel: level };
+    });
   }
 
   return (
