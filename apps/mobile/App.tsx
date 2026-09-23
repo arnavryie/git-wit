@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, SafeAreaView, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, SafeAreaView, TouchableOpacity, Text, LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LayoutGrid, Sparkles, Bookmark, Compass, User } from 'lucide-react-native';
 import { Header } from './src/components/Header';
@@ -10,6 +10,8 @@ import { BookmarksScreen } from './src/screens/BookmarksScreen';
 import { Repo } from './src/types';
 import { FALLBACK_REPOS } from './src/services/api';
 import { colors } from './src/theme/colors';
+
+LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
 type Tab = 'feed' | 'dossier' | 'communities' | 'bookmarks';
 

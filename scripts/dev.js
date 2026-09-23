@@ -4,7 +4,7 @@
  * Runs Next.js Web app and Expo Android simultaneously with a single command.
  */
 
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
@@ -18,6 +18,11 @@ const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';
 
 console.log(`${BOLD}⚔️ Starting git-wit: Web + Android simultaneously...${RESET}\n`);
+
+// Forward emulator ports if adb is present
+try {
+  execSync('adb reverse tcp:8081 tcp:8081 2>/dev/null && adb reverse tcp:3000 tcp:3000 2>/dev/null');
+} catch {}
 
 // 1. Start Next.js Frontend Server
 const web = spawn('npm', ['run', 'dev'], {
