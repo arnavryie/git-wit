@@ -191,8 +191,8 @@ export const UserLookupCard: React.FC<UserLookupCardProps> = ({
                   {userProfile.name}
                 </Text>
                 <View style={styles.verifiedTag}>
-                  <ShieldCheck size={11} color="#34d399" />
-                  <Text style={styles.verifiedText}>Verified</Text>
+                  <ShieldCheck size={11} color="#10b981" />
+                  <Text style={styles.verifiedText}>Verified GitHub User</Text>
                 </View>
               </View>
               <Text style={styles.userHandle}>@{userProfile.username}</Text>
@@ -228,18 +228,23 @@ export const UserLookupCard: React.FC<UserLookupCardProps> = ({
             <View style={styles.aiTldrHeader}>
               <View style={styles.aiBadge}>
                 <Sparkles size={11} color={colors.purpleBright} />
-                <Text style={styles.aiBadgeText}>AI USER TL;DR</Text>
+                <Text style={styles.aiBadgeText}>AI User TL;DR</Text>
               </View>
               <View style={styles.archetypeBadge}>
                 <Text style={styles.archetypeText} numberOfLines={1}>
                   {userProfile.archetype}
                 </Text>
               </View>
+              <View style={styles.dualBrainBadge}>
+                <Sparkles size={10} color="#c084fc" />
+                <Text style={styles.dualBrainText}>Dual-Brain</Text>
+              </View>
             </View>
 
             {/* Superpower */}
             <View style={styles.superpowerLine}>
-              <Zap size={11} color={colors.blue} />
+              <Zap size={12} color="#10b981" />
+              <Text style={styles.superpowerPrefix}>Superpower: </Text>
               <Text style={styles.superpowerText} numberOfLines={1}>
                 {userProfile.superpower}
               </Text>
@@ -257,7 +262,7 @@ export const UserLookupCard: React.FC<UserLookupCardProps> = ({
               activeOpacity={0.8}
             >
               <Sparkles size={13} color={colors.purpleBright} />
-              <Text style={styles.dossierBtnText}>Inspect Full AI Dossier</Text>
+              <Text style={styles.dossierBtnText}>Inspect @{userProfile.username}'s full dossier & repos</Text>
               <ArrowRight size={13} color={colors.purpleBright} />
             </TouchableOpacity>
           )}
@@ -500,6 +505,27 @@ const styles = StyleSheet.create({
     color: '#e9d5ff',
     fontSize: 10,
     fontWeight: '700',
+  },
+  dualBrainBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    backgroundColor: "#3b0764",
+    borderWidth: 1,
+    borderColor: "#7c3aed60",
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 8,
+  },
+  dualBrainText: {
+    color: "#e9d5ff",
+    fontSize: 9,
+    fontWeight: "700",
+  },
+  superpowerPrefix: {
+    color: "#10b981",
+    fontSize: 11,
+    fontWeight: "700",
   },
   superpowerLine: {
     flexDirection: 'row',
