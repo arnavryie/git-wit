@@ -7,6 +7,7 @@ Author: Sanskar Sontakke (@sanskar-code)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
+from routers.vector_search import router as vector_router
 
 app = FastAPI(
     title=settings.app_name,
@@ -22,6 +23,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register sub-routers
+app.include_router(vector_router)
 
 @app.get("/health", tags=["System"])
 async def health_check():
