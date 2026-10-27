@@ -4,8 +4,6 @@
  * Author: Yukta Tapdiya (@yukta06tapdiya)
  */
 
-import { gitwitTheme } from '../../../frontend/src/styles/tokens';
-
 export const MobileTokens = {
   colors: {
     canvas: '#0d1117',
