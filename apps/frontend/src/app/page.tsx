@@ -159,12 +159,16 @@ export default function LandingPage() {
     setLoggingIn(true);
     try {
       const res = await signIn("github", { callbackUrl: "/feed", redirect: false });
-      if (res?.error) {
-        await handleUserLogin(inputUsername || "arnavryie");
-      } else if (res?.url) {
+      if (res?.url) {
         window.location.href = res.url;
+        return;
       }
-    } catch {
+      if (res?.error) {
+        console.warn("GitHub OAuth error:", res.error);
+        await handleUserLogin(inputUsername || "arnavryie");
+      }
+    } catch (err) {
+      console.warn("GitHub OAuth exception:", err);
       await handleUserLogin(inputUsername || "arnavryie");
     } finally {
       setLoggingIn(false);
@@ -257,7 +261,7 @@ export default function LandingPage() {
                 onChange={(e) => setInputUsername(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    handleViewProfile(inputUsername || "arnavryie");
+                    handleUserLogin(inputUsername || "arnavryie");
                   }
                 }}
                 placeholder="Enter GitHub username (e.g. torvalds, shadcn, gaearon, arnavryie)"

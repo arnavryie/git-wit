@@ -53,18 +53,20 @@ export default function TopNav() {
 
   const handleSignIn = async () => {
     try {
-      const res = await signIn('github', { redirect: false });
+      const res = await signIn('github', { callbackUrl: '/feed', redirect: false });
+      if (res?.url) {
+        window.location.href = res.url;
+        return;
+      }
       if (res?.error) {
         await signIn('credentials', { username: activeUser || 'arnavryie' });
-      } else if (res?.url) {
-        window.location.href = res.url;
       }
     } catch {
       await signIn('credentials', { username: activeUser || 'arnavryie' });
     }
   };
 
-  const handleSwitchUser = (target: string) => {
+  const handleSwitchUser = async (target: string) => {
     const clean = target.trim().replace(/^@/, '');
     if (!clean) return;
     setActiveUser(clean);
@@ -74,6 +76,11 @@ export default function TopNav() {
     }
     setShowSwitchModal(false);
     setSwitchInput('');
+    try {
+      await signIn('credentials', { username: clean, redirect: false });
+    } catch (e) {
+      console.warn('Switch user session notice:', e);
+    }
     router.push(`/profile/${clean}`);
   };
 
